@@ -43,9 +43,47 @@ Abra **http://localhost:3000** (o el puerto que indique la consola). La API resp
 | `NODE_ENV` | `production` en despliegue. |
 | `DATA_DIR` | (Opcional) Ruta absoluta a la carpeta de CSV; por defecto `data/public` relativo al proyecto. |
 
-## Despliegue (Railway / Render u otro)
+## Despliegue en Railway
 
-1. Servicio desde este repositorio.
-2. **Build:** `npm install && npm run build`
-3. **Start:** `npm start`
-4. **Variables:** `NODE_ENV=production`
+El repo incluye **`Dockerfile`** y **`railway.toml`**: Railway construye con Docker (build reproducible) y arranca con `npm start`. El healthcheck usa **`GET /api/health`**.
+
+### Pasos
+
+1. **Cuenta y proyecto**  
+   Entra en [railway.app](https://railway.app), crea un proyecto y elige **Deploy from GitHub repo**.  
+   Autoriza a Railway y selecciona **`angelucv/seguros-la-fe-bi`** (o el fork que uses).
+
+2. **Configuración del servicio**  
+   - **Root directory:** deja la raíz del repo (donde está `package.json` y `Dockerfile`).  
+   - Railway detecta `railway.toml` y usará el **Dockerfile** como builder (`builder = "DOCKERFILE"`).  
+   - **Start command:** ya está definido en `railway.toml` como `npm start` (coincide con el `CMD` del Dockerfile).
+
+3. **Variables de entorno (opcional)**  
+   En **Settings → Variables** del servicio:  
+   - No hace falta definir `PORT`: Railway la inyecta sola.  
+   - No hace falta `NODE_ENV` para el arranque: `npm start` ya la fija en `production`.  
+   - **`DATA_DIR`:** solo si montas un **volumen** con CSV en otra ruta; si no, la app usa `data/public` incluida en la imagen.
+
+4. **Despliegue**  
+   Haz **Deploy** (o conecta la rama `main` para despliegues automáticos en cada push).  
+   Espera a que el build termine (instala dependencias, `npm run build`, prune).  
+   Abre la **URL pública** que asigna Railway (Settings → Networking → Generate domain).
+
+5. **Comprobar**  
+   - `https://TU-DOMINIO.railway.app/api/health` debe responder JSON con `"ok": true`.  
+   - La raíz debe cargar el BI (SPA desde `dist/`).
+
+### Si el deploy falla o el healthcheck no pasa
+
+- Revisa **Build logs** y **Deploy logs** en Railway.  
+- El healthcheck espera hasta **120 s** (`railway.toml`); el primer arranque puede tardar si los CSV son grandes.  
+- Si cambias el puerto interno, Railway sigue inyectando `PORT`; el servidor ya escucha en `0.0.0.0`.
+
+### Datos (CSV)
+
+Los CSV van en **`data/public/`** y se copian en la imagen Docker. Para actualizar datos **sin** rebuild: monta un volumen y define **`DATA_DIR`** apuntando a esa carpeta.
+
+## Otros hosts (Render, VPS, etc.)
+
+1. Clonar el repo, `npm install`, `npm run build`, `npm start`.  
+2. Variables: `NODE_ENV=production`, `PORT` según el host.

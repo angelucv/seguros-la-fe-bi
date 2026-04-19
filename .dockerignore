@@ -8,3 +8,8 @@ dist
 coverage
 .vscode
 .cursor
+
+# ETL: no hace falta en la imagen de runtime (los CSV van en data/public)
+etl/cache
+etl/tmp
+etl/node_modules
