@@ -2,12 +2,12 @@ import { useEffect, useMemo, useRef, useState, type RefObject } from 'react';
 import { fetchApiJson } from '@/lib/apiFetch';
 import { cn } from '@/lib/utils';
 import { BRAND_DISPLAY_NAME, BRAND_PEER_ID, CHART_HISTORICO_MIN_MES_PREFIJO } from '@/lib/bi/config';
-import { CredixHistoricoLines } from '../components/charts/CredixHistoricoLines';
+import { LaFeHistoricoLines } from '../components/charts/LaFeHistoricoLines';
 import {
-  alignCredixLineSeriesByDate,
+  alignHistoricoLineSeriesByDate,
   applyPeerToggle,
   buildHistoricoCsv,
-  trimCredixLineSeriesDesdeMesMin,
+  trimHistoricoLineSeriesDesdeMesMin,
   catalogRowsForChartChips,
   downloadTextFile,
   filterAndOrderSeries,
@@ -68,8 +68,8 @@ export function BiHistorico() {
     if (!data) return [];
     const sel = new Set(selectedPeersPrimas);
     const flowBase = useUsd ? data.seriesFlujoUsd : data.seriesFlujoBs;
-    return trimCredixLineSeriesDesdeMesMin(
-      alignCredixLineSeriesByDate(filterAndOrderSeries(flowBase, sel, data.chartCatalog)),
+    return trimHistoricoLineSeriesDesdeMesMin(
+      alignHistoricoLineSeriesByDate(filterAndOrderSeries(flowBase, sel, data.chartCatalog)),
       CHART_HISTORICO_MIN_MES_PREFIJO
     );
   }, [data, selectedPeersPrimas, useUsd]);
@@ -77,8 +77,8 @@ export function BiHistorico() {
   const seriesPartChart = useMemo(() => {
     if (!data) return [];
     const sel = new Set(selectedPeersParticipacion);
-    return trimCredixLineSeriesDesdeMesMin(
-      alignCredixLineSeriesByDate(filterAndOrderSeries(data.seriesPart, sel, data.chartCatalog)),
+    return trimHistoricoLineSeriesDesdeMesMin(
+      alignHistoricoLineSeriesByDate(filterAndOrderSeries(data.seriesPart, sel, data.chartCatalog)),
       CHART_HISTORICO_MIN_MES_PREFIJO
     );
   }, [data, selectedPeersParticipacion]);
@@ -320,7 +320,7 @@ export function BiHistorico() {
           </div>
         ) : null}
 
-        <CredixHistoricoLines
+        <LaFeHistoricoLines
           ref={refChartPrimas}
           series={seriesFlujoChart.map((s) => ({
             ...s,
@@ -518,7 +518,7 @@ export function BiHistorico() {
           </div>
         ) : null}
 
-        <CredixHistoricoLines
+        <LaFeHistoricoLines
           ref={refChartPart}
           series={seriesPartChart}
           title="<b>Participación de mercado</b><br><sup>% sobre el universo del cuadro (SUDEASEG)</sup>"

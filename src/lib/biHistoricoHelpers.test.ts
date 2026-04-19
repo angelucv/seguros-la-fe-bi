@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { BRAND_PEER_ID } from '@/lib/bi/config';
 import {
-  alignCredixLineSeriesByDate,
+  alignHistoricoLineSeriesByDate,
   applyPeerToggle,
   filterAndOrderSeries,
   MAX_CHART_EMPRESAS,
@@ -9,7 +9,7 @@ import {
   normalizeHistoricoPayload,
   pickInitialPeerSelection,
   takePeersByRanking,
-  type CredixLineSeries,
+  type HistoricoLineSeries,
   type ChartCatalogRow,
 } from './biHistoricoHelpers';
 
@@ -19,7 +19,7 @@ const cat: ChartCatalogRow[] = [
   { peer_id: 'c', name: 'C', ranking: 3 },
 ];
 
-function serie(peer: string): CredixLineSeries {
+function serie(peer: string): HistoricoLineSeries {
   return {
     peer_id: peer,
     name: peer,
@@ -100,23 +100,23 @@ describe('filterAndOrderSeries', () => {
   });
 });
 
-describe('alignCredixLineSeriesByDate', () => {
+describe('alignHistoricoLineSeriesByDate', () => {
   it('une fechas y rellena huecos por mes', () => {
-    const a: CredixLineSeries = {
+    const a: HistoricoLineSeries = {
       peer_id: 'a',
       name: 'A',
       color: '#111',
       x: ['2020-01-31', '2020-02-29'],
       y: [1, 2],
     };
-    const b: CredixLineSeries = {
+    const b: HistoricoLineSeries = {
       peer_id: 'b',
       name: 'B',
       color: '#222',
       x: ['2020-02-29', '2020-03-31'],
       y: [10, 20],
     };
-    const out = alignCredixLineSeriesByDate([a, b]);
+    const out = alignHistoricoLineSeriesByDate([a, b]);
     expect(out[0]!.x).toEqual(['2020-01-31', '2020-02-29', '2020-03-31']);
     expect(out[0]!.y).toEqual([1, 2, null]);
     expect(out[1]!.y).toEqual([null, 10, 20]);

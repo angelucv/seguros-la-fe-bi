@@ -1,7 +1,7 @@
 import { BRAND_PEER_ID, CHART_HISTORICO_MIN_MES_PREFIJO } from '@/lib/bi/config';
 
-/** Alineado a `CredixHistoricoLines` (evita import circular). */
-export type CredixLineSeries = {
+/** Serie temporal usada por el gráfico histórico (evita import circular). */
+export type HistoricoLineSeries = {
   peer_id: string;
   name: string;
   color: string;
@@ -33,9 +33,9 @@ export type HistApi = {
   leaderLabel: string;
   varPivot: { peer_id: string; label: string; values: Record<string, number> }[];
   periods: string[];
-  seriesFlujoUsd: CredixLineSeries[];
-  seriesFlujoBs: CredixLineSeries[];
-  seriesPart: CredixLineSeries[];
+  seriesFlujoUsd: HistoricoLineSeries[];
+  seriesFlujoBs: HistoricoLineSeries[];
+  seriesPart: HistoricoLineSeries[];
 };
 
 export function normalizeHistoricoPayload(raw: unknown): HistApi {
@@ -46,9 +46,9 @@ export function normalizeHistoricoPayload(raw: unknown): HistApi {
     ? defRaw.filter((x): x is string => typeof x === 'string')
     : [];
 
-  const seriesFlujoUsd = Array.isArray(j.seriesFlujoUsd) ? (j.seriesFlujoUsd as CredixLineSeries[]) : [];
-  const seriesFlujoBs = Array.isArray(j.seriesFlujoBs) ? (j.seriesFlujoBs as CredixLineSeries[]) : [];
-  const seriesPart = Array.isArray(j.seriesPart) ? (j.seriesPart as CredixLineSeries[]) : [];
+  const seriesFlujoUsd = Array.isArray(j.seriesFlujoUsd) ? (j.seriesFlujoUsd as HistoricoLineSeries[]) : [];
+  const seriesFlujoBs = Array.isArray(j.seriesFlujoBs) ? (j.seriesFlujoBs as HistoricoLineSeries[]) : [];
+  const seriesPart = Array.isArray(j.seriesPart) ? (j.seriesPart as HistoricoLineSeries[]) : [];
   const varPivot = Array.isArray(j.varPivot) ? (j.varPivot as HistApi['varPivot']) : [];
   const periods = Array.isArray(j.periods) ? (j.periods as string[]) : [];
 
@@ -174,7 +174,7 @@ export function preferredHistoricoPeerIds(h: HistApi): string[] {
 }
 
 function hasSeriesForPeer(h: HistApi, peerId: string): boolean {
-  const hit = (arr: CredixLineSeries[]) => arr.some((s) => s.peer_id === peerId);
+  const hit = (arr: HistoricoLineSeries[]) => arr.some((s) => s.peer_id === peerId);
   return hit(h.seriesFlujoUsd) || hit(h.seriesFlujoBs) || hit(h.seriesPart);
 }
 
@@ -211,10 +211,10 @@ export function applyPeerToggle(
 }
 
 export function filterAndOrderSeries(
-  series: CredixLineSeries[],
+  series: HistoricoLineSeries[],
   selected: Set<string>,
   catalog: ChartCatalogRow[]
-): CredixLineSeries[] {
+): HistoricoLineSeries[] {
   const rank = new Map(catalog.map((c) => [c.peer_id, c.ranking ?? 999]));
   const orderIdx = new Map(catalog.map((c, i) => [c.peer_id, i]));
   return series
@@ -231,7 +231,7 @@ export function filterAndOrderSeries(
  * Misma línea de tiempo para todas las series: unión de fechas ordenada y valor por `fecha_periodo`.
  * Sin esto, alinear por índice mezcla meses entre empresas (p. ej. La Fe vs otras con distinto historial).
  */
-export function alignCredixLineSeriesByDate(series: CredixLineSeries[]): CredixLineSeries[] {
+export function alignHistoricoLineSeriesByDate(series: HistoricoLineSeries[]): HistoricoLineSeries[] {
   if (series.length === 0) return [];
   const allX = [...new Set(series.flatMap((s) => s.x))].sort((a, b) => a.localeCompare(b));
   return series.map((s) => {
@@ -256,10 +256,10 @@ export function alignCredixLineSeriesByDate(series: CredixLineSeries[]): CredixL
 /**
  * Recorta cada serie a meses con prefijo ≥ `minMesPrefijo` (p. ej. `2023-01`), alineado al eje del gráfico histórico.
  */
-export function trimCredixLineSeriesDesdeMesMin(
-  series: CredixLineSeries[],
+export function trimHistoricoLineSeriesDesdeMesMin(
+  series: HistoricoLineSeries[],
   minMesPrefijo: string = CHART_HISTORICO_MIN_MES_PREFIJO
-): CredixLineSeries[] {
+): HistoricoLineSeries[] {
   if (series.length === 0) return [];
   return series.map((s) => {
     const x: string[] = [];
@@ -275,9 +275,9 @@ export function trimCredixLineSeriesDesdeMesMin(
 }
 
 /** Filas CSV (separador `;`, decimales con coma) para las series visibles. */
-export function buildHistoricoCsv(series: CredixLineSeries[], titulo: string): string {
+export function buildHistoricoCsv(series: HistoricoLineSeries[], titulo: string): string {
   if (!series.length) return '';
-  const aligned = alignCredixLineSeriesByDate(series);
+  const aligned = alignHistoricoLineSeriesByDate(series);
   const esc = (v: string | number) => {
     const s = String(v);
     if (/[;\r\n"]/.test(s)) return `"${s.replace(/"/g, '""')}"`;
@@ -309,7 +309,7 @@ export function downloadTextFile(filename: string, content: string, mime: string
   URL.revokeObjectURL(url);
 }
 
-export function seriesNullGapSummary(series: CredixLineSeries[]): { name: string; nullCount: number }[] {
+export function seriesNullGapSummary(series: HistoricoLineSeries[]): { name: string; nullCount: number }[] {
   return series
     .map((s) => ({
       name: s.name,

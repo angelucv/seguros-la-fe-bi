@@ -3,7 +3,7 @@ import { Cell, Pie, PieChart, ResponsiveContainer, Tooltip } from 'recharts';
 import { BRAND_DISPLAY_NAME, COLOR_BRAND_PRIMARY } from '@/lib/bi/config';
 import { useCompactViewport } from '../../lib/useCompactViewport';
 
-export type CredixDonutSlice = {
+export type LaFeDonutSlice = {
   name: string;
   value: number;
   color: string;
@@ -16,7 +16,7 @@ function LabelConContraste(props: Record<string, unknown>) {
   const midAngle = Number(props.midAngle ?? 0);
   const outerRadius = Number(props.outerRadius ?? 0);
   const { name, percent } = props;
-  const payload = (props.payload ?? {}) as CredixDonutSlice;
+  const payload = (props.payload ?? {}) as LaFeDonutSlice;
   const nm = String(name).toLowerCase();
   const isMarca =
     Boolean(payload.highlight) ||
@@ -83,13 +83,13 @@ function LabelConContraste(props: Record<string, unknown>) {
  * Donut de participación: la animación de Recharts solo se ve bien cuando el contenedor ya tiene tamaño
  * (ResponsiveContainer). Se retrasa un fotograma el montaje del Pie y se fuerza `key` al cambiar datos.
  */
-export function CredixDonut({
+export function LaFeDonut({
   slices,
   title,
   subtitle,
   className = '',
 }: {
-  slices: CredixDonutSlice[];
+  slices: LaFeDonutSlice[];
   title: string;
   subtitle?: string;
   className?: string;
@@ -223,7 +223,7 @@ export function CredixDonut({
         {compact && data.length > 0 ? (
           <ul className="mt-3 space-y-2 border-t border-slate-100 px-2 pb-2 pt-3 text-left text-[11px] leading-snug text-slate-800">
             {data.map((d, i) => {
-              const row = d as CredixDonutSlice & { fill: string };
+              const row = d as LaFeDonutSlice & { fill: string };
               const pct =
                 donutValueTotal > 0
                   ? ((Number(row.value) / donutValueTotal) * 100).toFixed(1).replace('.', ',')

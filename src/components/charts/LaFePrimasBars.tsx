@@ -71,7 +71,7 @@ function TooltipPrimas({
  * Barras agrupadas + líneas que unen cada empresa mes a mes.
  * Revelado de izquierda a derecha (mes a mes) y meses en español bajo el eje.
  */
-export function CredixPrimasBars({
+export function LaFePrimasBars({
   mesesLabels,
   series,
   title,

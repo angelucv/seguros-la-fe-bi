@@ -1,6 +1,6 @@
 # Seguros La Fe · BI web (React + Express)
 
-Aplicación tipo **Credix BI** para visualizar datos públicos de **SUDEASEG**: React 19, Vite 6, Tailwind 4 y Express en un solo proceso en desarrollo y producción. El **ETL** vive en la carpeta `etl/` y genera los CSV que consume el BI.
+Tablero **Seguros La Fe · BI** para visualizar datos públicos de **SUDEASEG**: React 19, Vite 6, Tailwind 4 y Express en un solo proceso en desarrollo y producción. El **ETL** vive en la carpeta `etl/` y genera los CSV que consume el BI.
 
 ## Requisitos
 

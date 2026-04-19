@@ -4,8 +4,8 @@ import { useCompactViewport } from '../lib/useCompactViewport';
 import { BRAND_DISPLAY_NAME, SECTOR_COMPARATIVA_MAX_EMPRESAS } from '../../lib/bi/config';
 import type { Data, Layout } from 'plotly.js';
 import { PlotlyFigure } from '../components/charts/PlotlyFigure';
-import { CredixDonut } from '../components/charts/CredixDonut';
-import { CredixPrimasBars } from '../components/charts/CredixPrimasBars';
+import { LaFeDonut } from '../components/charts/LaFeDonut';
+import { LaFePrimasBars } from '../components/charts/LaFePrimasBars';
 import type { ResultadoPayload } from '../components/bi/ResultadoTecnicoSection';
 
 type SectorApi = {
@@ -173,7 +173,7 @@ export function BiSector({ onOpenFunerario }: { onOpenFunerario?: () => void } =
             </p>
           </div>
         ) : (
-          <CredixDonut
+          <LaFeDonut
             slices={donutSlices}
             title={`<b>Participación de mercado · ${data.anioCurso}</b> · millones USD`}
             subtitle={`Datos al cierre ${data.pie.fech26.slice(0, 7)}${
@@ -196,7 +196,7 @@ export function BiSector({ onOpenFunerario }: { onOpenFunerario?: () => void } =
             <p className="mt-2 text-amber-900/90">No hay serie mensual de primas disponible para graficar.</p>
           </div>
         ) : (
-          <CredixPrimasBars
+          <LaFePrimasBars
             mesesLabels={data.primasMensuales.mesesLabels}
             series={data.primasMensuales.series}
             title={`<b>Primas mensuales · ${data.anioCurso}</b> · millones USD`}
@@ -627,7 +627,7 @@ function TabEvo({
     <div className="space-y-8">
       <div>
         <h3 className="font-semibold text-[#7823BD]">Evolución mes a mes — primas (misma banda de comparativa)</h3>
-        <CredixPrimasBars
+        <LaFePrimasBars
           mesesLabels={mesesLabels}
           series={series}
           title={`<b>Primas mensuales · ${anioCurso}</b> · millones USD`}

@@ -20,16 +20,16 @@ import {
   COLOR_BRAND_NAVY,
   COLOR_BRAND_PRIMARY,
 } from '../../../lib/bi/config';
-import type { CredixLineSeries } from '@/src/lib/biHistoricoHelpers';
+import type { HistoricoLineSeries } from '@/src/lib/biHistoricoHelpers';
 
-export type { CredixLineSeries } from '@/src/lib/biHistoricoHelpers';
+export type { HistoricoLineSeries } from '@/src/lib/biHistoricoHelpers';
 
 const CARD_BORDER = 'border-[#7823BD]/15';
 const CARD_BG = 'bg-[#FBF9F9]';
 const TITLE_COLOR = '#7823BD';
 
 type Props = {
-  series: CredixLineSeries[];
+  series: HistoricoLineSeries[];
   title: string;
   subtitle?: string;
   yAxisLabel: string;
@@ -51,7 +51,7 @@ function strokeForPeer(peerId: string, seriesColor: string): string {
   return peerId === BRAND_PEER_ID ? CHART_LINE_STROKE_MARCA : seriesColor;
 }
 
-function rowsFromSeries(series: CredixLineSeries[]) {
+function rowsFromSeries(series: HistoricoLineSeries[]) {
   if (!series.length) return [];
   const allX = [...new Set(series.flatMap((s) => s.x))].sort((a, b) => a.localeCompare(b));
   const mesMin = CHART_HISTORICO_MIN_MES_PREFIJO;
@@ -110,10 +110,10 @@ function brushSpan(rows: Record<string, unknown>[], keys: string[]): { start: nu
 }
 
 /**
- * Líneas suaves + animación de trazo (Recharts), estilo “evolución” tipo Credix.
+ * Líneas suaves + animación de trazo (Recharts), estilo evolución del tablero Seguros La Fe.
  * `ref` apunta al contenedor exportable (PNG).
  */
-export const CredixHistoricoLines = forwardRef<HTMLDivElement, Props>(function CredixHistoricoLines(
+export const LaFeHistoricoLines = forwardRef<HTMLDivElement, Props>(function LaFeHistoricoLines(
   {
     series,
     title,
