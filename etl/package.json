@@ -1,0 +1,25 @@
+{
+  "name": "seguros-la-fe-etl",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json --noEmit",
+    "download": "tsx src/cli.ts download",
+    "transform": "tsx src/cli.ts transform",
+    "all": "tsx src/cli.ts all",
+    "inspect": "tsx src/cli.ts inspect"
+  },
+  "dependencies": {
+    "pdf-parse": "^2.4.5",
+    "xlsx": "^0.18.5"
+  },
+  "devDependencies": {
+    "@types/node": "^22.14.0",
+    "tsx": "^4.21.0",
+    "typescript": "~5.8.2"
+  }
+}

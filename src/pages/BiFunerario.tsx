@@ -1,0 +1,336 @@
+import { Fragment, useEffect, useMemo, useState } from 'react';
+import { fetchApiJson } from '@/lib/apiFetch';
+import { milesBsNominalToUsdMillonesNullable } from '@/lib/bi/fxEngine';
+import { BRAND_DISPLAY_NAME, BRAND_PEER_ID } from '@/lib/bi/config';
+import { cn } from '@/lib/utils';
+import { FunerarioEvolutionChart } from '../components/bi/FunerarioEvolutionChart';
+import { FunerarioParticipacionPies } from '../components/bi/FunerarioParticipacionPies';
+
+type FunerarioRow = {
+  ranking_funerario: number;
+  empresa_raw: string;
+  peer_id: string;
+  primas_funerario_miles_bs: number;
+  primas_total_personas_miles_bs: number;
+  pagina_pdf: string;
+  year: number;
+  archivo_fuente: string;
+};
+
+type TipoCambioDiciembreRow = {
+  year: number;
+  ves_por_usd: number | null;
+};
+
+type FunerarioApi = {
+  years: number[];
+  byYear: Record<string, FunerarioRow[]>;
+  tipoCambioDiciembre?: TipoCambioDiciembreRow[];
+  sourceFile: string;
+  dataDir: string;
+  generatedAt: string;
+  error?: string;
+};
+
+function rowsForYear(api: FunerarioApi, year: number): FunerarioRow[] {
+  return api.byYear[String(year)] ?? [];
+}
+
+/** Tabla: lectura clara sin exceso de decimales. */
+function fmtMilesTabla(n: number): string {
+  return new Intl.NumberFormat('es-VE', { minimumFractionDigits: 0, maximumFractionDigits: 1 }).format(n);
+}
+
+function fmtUsdTabla(n: number): string {
+  return new Intl.NumberFormat('es-VE', { minimumFractionDigits: 0, maximumFractionDigits: 2 }).format(n);
+}
+
+function fmtPctTabla(n: number | null): string {
+  if (n == null || !Number.isFinite(n)) return '—';
+  return `${new Intl.NumberFormat('es-VE', { minimumFractionDigits: 0, maximumFractionDigits: 1 }).format(n)}\u00A0%`;
+}
+
+function vesPorAno(tc: TipoCambioDiciembreRow[], year: number): number | null {
+  return tc.find((t) => t.year === year)?.ves_por_usd ?? null;
+}
+
+export function BiFunerario() {
+  const [data, setData] = useState<FunerarioApi | null>(null);
+  const [err, setErr] = useState<string | null>(null);
+  const [moneda, setMoneda] = useState<'bs' | 'usd'>('usd');
+
+  useEffect(() => {
+    fetchApiJson<FunerarioApi>('/api/bi/funerario')
+      .then(setData)
+      .catch((e: unknown) => setErr(String(e)));
+  }, []);
+
+  const matrix = useMemo(() => {
+    if (!data || data.error) return null;
+    const years = data.years.length ? data.years : [2022, 2023, 2024];
+    const totals: Record<number, number> = {};
+    const cell = new Map<
+      string,
+      { label: string; byYear: Record<number, { prima: number; rank: number; pct: number } | undefined> }
+    >();
+
+    for (const y of years) {
+      const rows = rowsForYear(data, y);
+      const sum = rows.reduce((s, r) => s + r.primas_funerario_miles_bs, 0);
+      totals[y] = sum;
+      for (const r of rows) {
+        const pct = sum > 0 ? (r.primas_funerario_miles_bs / sum) * 100 : 0;
+        let entry = cell.get(r.peer_id);
+        if (!entry) {
+          entry = { label: r.empresa_raw, byYear: {} };
+          cell.set(r.peer_id, entry);
+        }
+        entry.byYear[y] = {
+          prima: r.primas_funerario_miles_bs,
+          rank: r.ranking_funerario,
+          pct,
+        };
+      }
+    }
+
+    for (const peerId of cell.keys()) {
+      const withData = years.filter((y) => cell.get(peerId)?.byYear[y] != null);
+      const yLatest = withData.length ? Math.max(...withData) : null;
+      if (yLatest != null) {
+        const row = rowsForYear(data, yLatest).find((r) => r.peer_id === peerId);
+        if (row) cell.get(peerId)!.label = row.empresa_raw;
+      }
+    }
+
+    const peers = [...cell.keys()].sort((a, b) => {
+      if (a === BRAND_PEER_ID) return -1;
+      if (b === BRAND_PEER_ID) return 1;
+      const sumA = years.reduce((s, y) => s + (cell.get(a)?.byYear[y]?.prima ?? 0), 0);
+      const sumB = years.reduce((s, y) => s + (cell.get(b)?.byYear[y]?.prima ?? 0), 0);
+      return sumB - sumA;
+    });
+
+    return { years, totals, peers, cell };
+  }, [data]);
+
+  const years = data?.years.length ? data.years : [2022, 2023, 2024];
+  const tipo = data?.tipoCambioDiciembre ?? [];
+  const tcCompleto = useMemo(
+    () => years.every((y) => tipo.some((t) => t.year === y && t.ves_por_usd != null)),
+    [years, tipo]
+  );
+
+  const mostrarUsd = moneda === 'usd' && tcCompleto;
+
+  if (err) return <p className="text-sm text-red-600">{err}</p>;
+  if (!data) {
+    return (
+      <div className="animate-pulse space-y-4 rounded-xl border border-slate-200 bg-white p-6">
+        <div className="h-6 w-48 rounded bg-slate-200" />
+        <div className="h-40 rounded bg-slate-100" />
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-8">
+      <header className="space-y-2">
+        <h2 className="text-lg font-semibold text-[#7823BD]">BI Funerario</h2>
+        <p className="text-sm leading-relaxed text-slate-600">
+          Primas netas cobradas en el ramo <strong>Funerarios</strong> (seguros de personas, seguro directo), según el{' '}
+          <strong>Cuadro 5-A</strong> de las publicaciones «Seguro en cifras» (SUDEASEG). Puede ver los importes en{' '}
+          <strong>miles de bolívares nominales</strong> o convertidos a <strong>dólares estadounidenses</strong> con el tipo de
+          cambio oficial del BCV al <strong>cierre de diciembre</strong> de cada año (misma serie que el resto del tablero). El
+          porcentaje no cambia al pasar a USD (es la participación sobre el total funerario del cuadro).
+        </p>
+        {tipo.length > 0 && (
+          <p className="text-xs text-slate-600">
+            <span className="font-medium text-slate-700">Tipo de cambio BCV (VES por USD, cierre dic.): </span>
+            {tipo
+              .filter((t) => years.includes(t.year))
+              .map((t) =>
+                t.ves_por_usd != null
+                  ? `${t.year}: ${new Intl.NumberFormat('es-VE', { maximumFractionDigits: 4 }).format(t.ves_por_usd)}`
+                  : `${t.year}: —`
+              )
+              .join(' · ')}
+          </p>
+        )}
+        {data.error ? (
+          <p className="rounded-lg border border-amber-300 bg-amber-50 px-3 py-2 text-sm text-amber-950">{data.error}</p>
+        ) : null}
+      </header>
+
+      {!data.error && (
+        <div className="flex flex-wrap items-center gap-4 rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm shadow-sm">
+          <span className="font-semibold text-slate-700">Unidades:</span>
+          <label className="inline-flex cursor-pointer items-center gap-2 text-slate-800">
+            <input
+              type="radio"
+              name="fun-moneda"
+              className="accent-[#7823BD]"
+              checked={mostrarUsd}
+              disabled={!tcCompleto}
+              onChange={() => tcCompleto && setMoneda('usd')}
+            />
+            Millones USD (TC BCV dic.)
+          </label>
+          <label className="inline-flex cursor-pointer items-center gap-2 text-slate-800">
+            <input
+              type="radio"
+              name="fun-moneda"
+              className="accent-[#7823BD]"
+              checked={!mostrarUsd}
+              onChange={() => setMoneda('bs')}
+            />
+            Miles Bs. nominales
+          </label>
+          {!tcCompleto && (
+            <span className="text-xs text-amber-800">
+              Falta tipo de cambio de cierre de diciembre para algún año; solo se muestran bolívares.
+            </span>
+          )}
+        </div>
+      )}
+
+      {!data.error && (
+        <FunerarioEvolutionChart
+          data={{ years: matrix?.years ?? years, byYear: data.byYear }}
+          tipoCambioDiciembre={tipo}
+          moneda={mostrarUsd ? 'usd' : 'bs'}
+        />
+      )}
+
+      {!data.error && (
+        <FunerarioParticipacionPies
+          data={{ years: matrix?.years ?? years, byYear: data.byYear }}
+          tipoCambioDiciembre={tipo}
+          moneda={mostrarUsd ? 'usd' : 'bs'}
+        />
+      )}
+
+      {!data.error && matrix && (
+        <section className="space-y-3">
+          <h3 className="text-base font-bold text-[#7823BD]">
+            Detalle por empresa ({mostrarUsd ? 'millones USD y %' : 'miles Bs. y %'} sobre total funerario)
+          </h3>
+          <div className="overflow-x-auto rounded-xl border border-slate-200 shadow-sm">
+            <table className="w-full min-w-[720px] border-collapse text-left text-xs">
+              <caption className="caption-bottom px-2 pb-2 pt-3 text-left text-[11px] text-slate-500">
+                Cada año: prima del ramo funerarios y participación sobre la suma de primas funerarias del cuadro en ese
+                cierre.
+                {mostrarUsd ? ' Los importes en USD usan el tipo de cambio de diciembre de ese año.' : ''}
+              </caption>
+              <thead className="bg-slate-100">
+                <tr>
+                  <th
+                    className="sticky left-0 z-10 border-b border-slate-200 bg-slate-100 px-2 py-2 shadow-[2px_0_6px_-2px_rgba(0,0,0,0.08)]"
+                    rowSpan={2}
+                  >
+                    Empresa
+                  </th>
+                  {matrix.years.map((y) => (
+                    <th key={y} className="border-b border-slate-200 px-2 py-2 text-center" colSpan={2}>
+                      {y}
+                    </th>
+                  ))}
+                </tr>
+                <tr>
+                  {matrix.years.map((y) => (
+                    <Fragment key={`${y}-sub`}>
+                      <th className="border-b border-slate-200 bg-slate-50 px-2 py-1.5 text-right font-normal text-slate-600">
+                        {mostrarUsd ? 'Millones USD' : 'Miles Bs.'}
+                      </th>
+                      <th className="border-b border-slate-200 bg-slate-50 px-2 py-1.5 text-right font-normal text-slate-600">
+                        % total
+                      </th>
+                    </Fragment>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {matrix.peers.map((peerId) => {
+                  const entry = matrix.cell.get(peerId)!;
+                  const marca = peerId === BRAND_PEER_ID;
+                  return (
+                    <tr
+                      key={peerId}
+                      className={cn(
+                        marca
+                          ? 'bg-[#FFC857]/15 font-medium ring-1 ring-inset ring-[#7823BD]/20'
+                          : 'odd:bg-white even:bg-slate-50'
+                      )}
+                    >
+                      <td className="sticky left-0 z-[1] border-b border-slate-100 bg-inherit px-2 py-1.5 shadow-[2px_0_6px_-2px_rgba(0,0,0,0.06)]">
+                        {marca ? (
+                          <span className="font-semibold text-[#7823BD]">{BRAND_DISPLAY_NAME}</span>
+                        ) : (
+                          entry.label
+                        )}
+                      </td>
+                      {matrix.years.map((y) => {
+                        const c = entry.byYear[y];
+                        const ves = vesPorAno(tipo, y);
+                        const usd =
+                          c && mostrarUsd ? milesBsNominalToUsdMillonesNullable(c.prima, ves) : null;
+                        return (
+                          <Fragment key={`${peerId}-${y}`}>
+                            <td className="border-b border-slate-100 px-2 py-1.5 text-right font-mono tabular-nums">
+                              {!c
+                                ? '—'
+                                : mostrarUsd
+                                  ? usd != null
+                                    ? fmtUsdTabla(usd)
+                                    : '—'
+                                  : fmtMilesTabla(c.prima)}
+                            </td>
+                            <td className="whitespace-nowrap border-b border-slate-100 px-2 py-1.5 text-right font-mono tabular-nums text-slate-700">
+                              {c ? fmtPctTabla(c.pct) : '—'}
+                            </td>
+                          </Fragment>
+                        );
+                      })}
+                    </tr>
+                  );
+                })}
+              </tbody>
+              <tfoot>
+                <tr className="bg-slate-100 font-semibold text-slate-800">
+                  <td className="sticky left-0 z-[1] border-t border-slate-200 bg-slate-100 px-2 py-2 shadow-[2px_0_6px_-2px_rgba(0,0,0,0.08)]">
+                    Total (cuadro)
+                  </td>
+                  {matrix.years.map((y) => {
+                    const totalMiles = matrix.totals[y] ?? 0;
+                    const ves = vesPorAno(tipo, y);
+                    const totalUsd = mostrarUsd ? milesBsNominalToUsdMillonesNullable(totalMiles, ves) : null;
+                    return (
+                      <td key={`tot-${y}`} className="border-t border-slate-200 px-2 py-2 text-right font-mono" colSpan={2}>
+                        {mostrarUsd ? (
+                          totalUsd != null ? (
+                            <>{fmtUsdTabla(totalUsd)} millones USD</>
+                          ) : (
+                            '—'
+                          )
+                        ) : (
+                          <>{fmtMilesTabla(totalMiles)} miles Bs.</>
+                        )}
+                      </td>
+                    );
+                  })}
+                </tr>
+              </tfoot>
+            </table>
+          </div>
+        </section>
+      )}
+
+      <details className="rounded-xl border border-slate-200 bg-white p-4 text-sm text-slate-600">
+        <summary className="cursor-pointer font-medium text-[#7823BD]">Nota metodológica</summary>
+        <p className="mt-2 text-xs leading-relaxed">
+          Prima funeraria sobre el total del ramo en cada año. USD: bolívares nominales al tipo BCV de diciembre de ese año.
+          Fuentes: publicaciones estadísticas SUDEASEG (series y anuario).
+        </p>
+      </details>
+    </div>
+  );
+}
