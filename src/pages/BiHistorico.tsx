@@ -532,8 +532,8 @@ export function BiHistorico() {
         {data.varPivot.length === 0 ? (
           <p className="text-sm text-slate-500">No hay pares completos de cierres de diciembre para calcular variación YoY.</p>
         ) : (
-          <div className="overflow-x-auto rounded-xl border border-slate-200">
-            <table className="w-full min-w-[480px] text-left text-sm">
+          <div className="bi-table-scroll rounded-xl border border-slate-200">
+            <table className="w-max min-w-[480px] max-w-none text-left text-sm">
               <caption className="caption-bottom px-2 pb-2 pt-3 text-left text-xs text-slate-500">
                 Variación porcentual entre cierres de diciembre consecutivos · primas en miles de Bs. nominales · solo
                 períodos con cierre en diciembre de <strong>2022</strong> o posterior. Fuente: SUDEASEG.

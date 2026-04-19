@@ -12,6 +12,7 @@ import {
   YAxis,
 } from 'recharts';
 import { etiquetaMesEje, etiquetaPeriodoLegible } from '../../../lib/monthLabels';
+import { useCompactViewport } from '../../lib/useCompactViewport';
 import {
   BRAND_PEER_ID,
   CHART_HISTORICO_MIN_MES_PREFIJO,
@@ -130,6 +131,7 @@ export const CredixHistoricoLines = forwardRef<HTMLDivElement, Props>(function C
   const uid = useId().replace(/:/g, '');
   const gradId = `${uid}-grad`;
   const shadowFilterId = `${uid}-intl-shadow`;
+  const compact = useCompactViewport();
 
   const peerKeys = useMemo(() => series.map((s) => s.peer_id), [series]);
 
@@ -138,7 +140,7 @@ export const CredixHistoricoLines = forwardRef<HTMLDivElement, Props>(function C
   const brushIdx = useMemo(() => brushSpan(rows, peerKeys), [rows, peerKeys]);
 
   const showBrush = enableBrush && rows.length > 12;
-  const chartBottom = showBrush ? 100 : 64;
+  const chartBottom = showBrush ? (compact ? 92 : 100) : compact ? 56 : 64;
 
   const ordered = [...series].sort((a, b) => {
     if (a.peer_id === areaPeerId) return 1;
@@ -198,10 +200,13 @@ export const CredixHistoricoLines = forwardRef<HTMLDivElement, Props>(function C
       {subtitle && (
         <p className="mt-1 text-center text-xs text-slate-500" dangerouslySetInnerHTML={{ __html: subtitle }} />
       )}
-      <div className="mt-4 rounded-xl bg-white/95 p-2 pt-3 shadow-inner">
-        <div className="h-[min(560px,85vh)] w-full min-h-[380px]">
+        <div className="mt-4 rounded-xl bg-white/95 p-2 pt-3 shadow-inner">
+        <div className="h-[min(560px,85vh)] w-full min-h-[280px] sm:min-h-[380px]">
           <ResponsiveContainer width="100%" height="100%">
-            <ComposedChart data={rows} margin={{ top: 12, right: 12, left: 8, bottom: chartBottom }}>
+            <ComposedChart
+              data={rows}
+              margin={{ top: 12, right: compact ? 8 : 12, left: compact ? 4 : 8, bottom: chartBottom }}
+            >
               <defs>
                 <linearGradient id={gradId} x1="0" y1="0" x2="0" y2="1">
                   <stop offset="0%" stopColor={CHART_LINE_STROKE_MARCA} stopOpacity={0.55} />
@@ -227,7 +232,7 @@ export const CredixHistoricoLines = forwardRef<HTMLDivElement, Props>(function C
               <XAxis
                 dataKey="_x"
                 type="category"
-                tick={{ fontSize: 10, fill: '#0f172a', fontWeight: 600 }}
+                tick={{ fontSize: compact ? 9 : 10, fill: '#0f172a', fontWeight: 600 }}
                 tickFormatter={(v) => etiquetaMesEje(String(v))}
                 interval="preserveStartEnd"
                 tickLine={{ stroke: '#94a3b8' }}
@@ -235,7 +240,7 @@ export const CredixHistoricoLines = forwardRef<HTMLDivElement, Props>(function C
               />
               <YAxis
                 domain={yDomain}
-                tick={{ fontSize: 10, fill: '#334155', fontWeight: 500 }}
+                tick={{ fontSize: compact ? 9 : 10, fill: '#334155', fontWeight: 500 }}
                 tickLine={{ stroke: '#94a3b8' }}
                 axisLine={{ stroke: '#94a3b8' }}
                 label={{
@@ -243,10 +248,10 @@ export const CredixHistoricoLines = forwardRef<HTMLDivElement, Props>(function C
                   angle: -90,
                   position: 'insideLeft',
                   fill: '#1e293b',
-                  fontSize: 11,
+                  fontSize: compact ? 10 : 11,
                   fontWeight: 600,
                 }}
-                width={56}
+                width={compact ? 48 : 56}
               />
               <Tooltip
                 content={({ active, payload, label }) => {

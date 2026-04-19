@@ -11,6 +11,7 @@ import {
   YAxis,
 } from 'recharts';
 import { etiquetaMesLargoBarras } from '../../../lib/monthLabels';
+import { useCompactViewport } from '../../lib/useCompactViewport';
 import { BRAND_PEER_ID, CHART_STROKE_MARCA, COLOR_PEER_MARCA } from '../../../lib/bi/config';
 
 type Serie = { peer_id: string; name: string; color: string; y: number[] };
@@ -108,6 +109,7 @@ export function CredixPrimasBars({
   );
 
   const [visibleCount, setVisibleCount] = useState(1);
+  const compact = useCompactViewport();
 
   useEffect(() => {
     setVisibleCount(1);
@@ -132,23 +134,32 @@ export function CredixPrimasBars({
       />
       {subtitle && <p className="mt-1 text-center text-xs font-medium text-slate-600">{subtitle}</p>}
       <div className="mt-4 rounded-xl bg-white/95 p-2 pt-4 shadow-inner">
-        <div className="h-[min(460px,75vh)] w-full min-h-[320px]">
+        <div className="h-[min(460px,75vh)] w-full min-h-[260px] sm:min-h-[320px]">
           <ResponsiveContainer width="100%" height="100%">
             <ComposedChart
               data={data}
-              margin={{ top: 16, right: 12, left: 4, bottom: 28 }}
+              margin={{
+                top: 16,
+                right: compact ? 8 : 12,
+                left: compact ? 2 : 4,
+                bottom: compact ? 52 : 28,
+              }}
               barGap={4}
               barCategoryGap="18%"
             >
               <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#d8dee9" />
               <XAxis
                 dataKey="mesNombre"
-                tick={{ fontSize: 12, fill: '#0f172a', fontWeight: 600 }}
+                angle={compact ? -38 : 0}
+                textAnchor={compact ? 'end' : 'middle'}
+                height={compact ? 72 : undefined}
+                interval={0}
+                tick={{ fontSize: compact ? 10 : 12, fill: '#0f172a', fontWeight: 600 }}
                 tickLine={{ stroke: '#94a3b8' }}
                 axisLine={{ stroke: '#94a3b8' }}
               />
               <YAxis
-                tick={{ fontSize: 11, fill: '#334155', fontWeight: 500 }}
+                tick={{ fontSize: compact ? 10 : 11, fill: '#334155', fontWeight: 500 }}
                 tickLine={{ stroke: '#94a3b8' }}
                 axisLine={{ stroke: '#94a3b8' }}
                 label={{
@@ -156,10 +167,10 @@ export function CredixPrimasBars({
                   angle: -90,
                   position: 'insideLeft',
                   fill: '#1e293b',
-                  fontSize: 11,
+                  fontSize: compact ? 10 : 11,
                   fontWeight: 600,
                 }}
-                width={56}
+                width={compact ? 48 : 56}
               />
               <Tooltip
                 content={(props) => {

@@ -1,4 +1,5 @@
 import { useMemo } from 'react';
+import { useCompactViewport } from '../../lib/useCompactViewport';
 import {
   CartesianGrid,
   Legend,
@@ -84,6 +85,7 @@ export function FunerarioEvolutionChart({
   tipoCambioDiciembre: TipoCambioDiciembre[];
   moneda: 'bs' | 'usd';
 }) {
+  const compact = useCompactViewport();
   const years = data.years.length ? data.years : [2022, 2023, 2024];
 
   const { chartRows, lineDefs } = useMemo(() => {
@@ -180,15 +182,27 @@ export function FunerarioEvolutionChart({
           <> Escala en miles de bolívares nominales (eje lineal).</>
         )}
       </p>
-      <div className="mt-4 h-[min(380px,55vh)] min-h-[280px] w-full">
+      <div className="mt-4 h-[min(380px,55vh)] min-h-[240px] w-full sm:min-h-[280px]">
         <ResponsiveContainer width="100%" height="100%">
-          <LineChart data={chartRows} margin={{ top: 8, right: 12, left: 4, bottom: 4 }}>
+          <LineChart
+            data={chartRows}
+            margin={{
+              top: 8,
+              right: compact ? 8 : 12,
+              left: compact ? 2 : 4,
+              bottom: compact ? 28 : 4,
+            }}
+          >
             <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
             <XAxis
               dataKey="year"
-              tick={{ fontSize: 11 }}
+              tick={{ fontSize: compact ? 10 : 11 }}
               tickFormatter={(v) => String(v)}
-              label={{ value: 'Año de cierre', position: 'insideBottom', offset: -2, fontSize: 11, fill: '#64748b' }}
+              label={
+                compact
+                  ? undefined
+                  : { value: 'Año de cierre', position: 'insideBottom', offset: -2, fontSize: 11, fill: '#64748b' }
+              }
             />
             <YAxis
               domain={ejeUsd && yDomainUsd ? yDomainUsd : [0, 'auto']}
@@ -237,6 +251,9 @@ export function FunerarioEvolutionChart({
           </LineChart>
         </ResponsiveContainer>
       </div>
+      {compact ? (
+        <p className="mt-1 text-center text-[10px] text-slate-500">Eje horizontal: año de cierre del cuadro.</p>
+      ) : null}
     </div>
   );
 }

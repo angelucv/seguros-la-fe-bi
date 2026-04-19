@@ -214,8 +214,14 @@ export function BiFunerario() {
           <h3 className="text-base font-bold text-[#7823BD]">
             Detalle por empresa ({mostrarUsd ? 'millones USD y %' : 'miles Bs. y %'} sobre total funerario)
           </h3>
-          <div className="overflow-x-auto rounded-xl border border-slate-200 shadow-sm">
-            <table className="w-full min-w-[720px] border-collapse text-left text-xs">
+          <p className="flex items-center gap-2 text-[10px] leading-tight text-slate-500 md:hidden">
+            <span aria-hidden className="shrink-0 rounded border border-slate-200 bg-slate-100 px-1.5 py-0.5 font-mono text-[9px]">
+              ← →
+            </span>
+            Desliza horizontalmente para ver todos los años.
+          </p>
+          <div className="bi-table-scroll rounded-xl border border-slate-200 shadow-sm">
+            <table className="w-max min-w-[720px] max-w-none border-collapse text-left text-xs">
               <caption className="caption-bottom px-2 pb-2 pt-3 text-left text-[11px] text-slate-500">
                 Cada año: prima del ramo funerarios y participación sobre la suma de primas funerarias del cuadro en ese
                 cierre.
@@ -224,7 +230,7 @@ export function BiFunerario() {
               <thead className="bg-slate-100">
                 <tr>
                   <th
-                    className="sticky left-0 z-10 border-b border-slate-200 bg-slate-100 px-2 py-2 shadow-[2px_0_6px_-2px_rgba(0,0,0,0.08)]"
+                    className="max-md:relative max-md:left-auto max-md:z-auto max-md:shadow-none md:sticky md:left-0 md:z-10 md:shadow-[2px_0_6px_-2px_rgba(0,0,0,0.08)] border-b border-slate-200 bg-slate-100 px-2 py-2"
                     rowSpan={2}
                   >
                     Empresa
@@ -261,12 +267,14 @@ export function BiFunerario() {
                           : 'odd:bg-white even:bg-slate-50'
                       )}
                     >
-                      <td className="sticky left-0 z-[1] border-b border-slate-100 bg-inherit px-2 py-1.5 shadow-[2px_0_6px_-2px_rgba(0,0,0,0.06)]">
-                        {marca ? (
-                          <span className="font-semibold text-[#7823BD]">{BRAND_DISPLAY_NAME}</span>
-                        ) : (
-                          entry.label
-                        )}
+                      <td className="max-md:relative max-md:left-auto max-md:z-0 max-md:shadow-none md:sticky md:left-0 md:z-[1] border-b border-slate-100 bg-inherit px-2 py-1.5 align-top md:shadow-[2px_0_6px_-2px_rgba(0,0,0,0.06)]">
+                        <span className="block min-w-0 max-w-[10rem] break-words leading-snug md:max-w-none">
+                          {marca ? (
+                            <span className="font-semibold text-[#7823BD]">{BRAND_DISPLAY_NAME}</span>
+                          ) : (
+                            entry.label
+                          )}
+                        </span>
                       </td>
                       {matrix.years.map((y) => {
                         const c = entry.byYear[y];
@@ -296,7 +304,7 @@ export function BiFunerario() {
               </tbody>
               <tfoot>
                 <tr className="bg-slate-100 font-semibold text-slate-800">
-                  <td className="sticky left-0 z-[1] border-t border-slate-200 bg-slate-100 px-2 py-2 shadow-[2px_0_6px_-2px_rgba(0,0,0,0.08)]">
+                  <td className="max-md:relative max-md:left-auto max-md:z-0 max-md:shadow-none md:sticky md:left-0 md:z-[1] border-t border-slate-200 bg-slate-100 px-2 py-2 md:shadow-[2px_0_6px_-2px_rgba(0,0,0,0.08)]">
                     Total (cuadro)
                   </td>
                   {matrix.years.map((y) => {

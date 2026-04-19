@@ -10,12 +10,30 @@
   body {
     @apply bg-[#FBF9F9] text-[#423F40] antialiased;
     -webkit-tap-highlight-color: transparent;
+    /* Márgenes laterales en notch (iOS); el scroll principal aplica inset inferior en App.tsx */
+    padding-left: env(safe-area-inset-left, 0);
+    padding-right: env(safe-area-inset-right, 0);
+  }
+
+  /**
+   * Evita que tablas anchas “rompan” el ancho del viewport en móvil (scroll en el contenedor, no en body).
+   */
+  #root {
+    @apply min-w-0 max-w-[100vw] overflow-x-hidden;
   }
 }
 
 @layer utilities {
   .brand-enter {
     animation: brand-fade-up 0.75s ease-out both;
+  }
+
+  /** Scroll horizontal suave en tablas del BI en iOS/Android */
+  .bi-table-scroll {
+    -webkit-overflow-scrolling: touch;
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+    touch-action: pan-x;
   }
 }
 

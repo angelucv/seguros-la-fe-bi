@@ -2,6 +2,7 @@ import { useEffect, useRef } from 'react';
 import type { Data, Layout, Config } from 'plotly.js';
 import type PlotlyType from 'plotly.js';
 import { BRAND_PEER_ID } from '../../../lib/bi/config';
+import { useCompactViewport } from '../../lib/useCompactViewport';
 
 function transicionEntrada(data: Data[]): NonNullable<Layout['transition']> {
   const hasBar = data.some((d) => d.type === 'bar');
@@ -314,14 +315,23 @@ async function revelarLineasScatter(
   }
 }
 
-function mergeLayoutBase(layout: Partial<Layout> | undefined, transition: NonNullable<Layout['transition']>): Partial<Layout> {
+function mergeLayoutBase(
+  layout: Partial<Layout> | undefined,
+  transition: NonNullable<Layout['transition']>,
+  compact: boolean
+): Partial<Layout> {
+  const baseMargin = compact
+    ? { t: 36, r: 12, b: 36, l: 38 }
+    : { t: 48, r: 24, b: 48, l: 48 };
+  const mergedMargin = { ...baseMargin, ...(layout?.margin ?? {}) };
   return {
     paper_bgcolor: '#F0F4FB',
     plot_bgcolor: 'rgba(255,255,255,0.97)',
-    font: { family: 'Segoe UI, system-ui, sans-serif', size: 13, color: '#7823BD' },
-    margin: { t: 48, r: 24, b: 48, l: 48 },
+    font: { family: 'Segoe UI, system-ui, sans-serif', size: compact ? 12 : 13, color: '#7823BD' },
+    autosize: true,
     transition,
     ...layout,
+    margin: mergedMargin,
   };
 }
 
@@ -349,6 +359,7 @@ export function PlotlyFigure({
 }) {
   const ref = useRef<HTMLDivElement>(null);
   const yaEntradaAnimada = useRef(false);
+  const compact = useCompactViewport();
 
   useEffect(() => {
     const el = ref.current;
@@ -365,6 +376,9 @@ export function PlotlyFigure({
         ...config,
       };
 
+      const mergeLayout = (l: Partial<Layout> | undefined, t: NonNullable<Layout['transition']>) =>
+        mergeLayoutBase(l, t, compact);
+
       const run = async () => {
         const node = ref.current;
         if (cancelled || !node) return;
@@ -378,7 +392,7 @@ export function PlotlyFigure({
                 data[0]!,
                 layout,
                 mergedConfig,
-                mergeLayoutBase,
+                mergeLayout,
                 () => cancelled
               );
               if (!cancelled) yaEntradaAnimada.current = true;
@@ -392,7 +406,7 @@ export function PlotlyFigure({
                 data,
                 layout,
                 mergedConfig,
-                mergeLayoutBase,
+                mergeLayout,
                 () => cancelled
               );
               if (!cancelled) yaEntradaAnimada.current = true;
@@ -406,7 +420,7 @@ export function PlotlyFigure({
                 data,
                 layout,
                 mergedConfig,
-                mergeLayoutBase,
+                mergeLayout,
                 () => cancelled
               );
               if (!cancelled) yaEntradaAnimada.current = true;
@@ -415,22 +429,22 @@ export function PlotlyFigure({
 
             const inicial = trazasInicialesAnimacion(data);
             const entr = transicionEntrada(data);
-            await Plotly.newPlot(node, inicial, mergeLayoutBase(layout, entr), mergedConfig);
+            await Plotly.newPlot(node, inicial, mergeLayout(layout, entr), mergedConfig);
             if (cancelled || !ref.current) return;
-            await Plotly.react(ref.current, data, mergeLayoutBase(layout, entr), mergedConfig);
+            await Plotly.react(ref.current, data, mergeLayout(layout, entr), mergedConfig);
             if (!cancelled) yaEntradaAnimada.current = true;
             return;
           }
 
           if (elTieneGrafico(node)) {
-            await Plotly.react(node, data, mergeLayoutBase(layout, ACTUALIZAR), mergedConfig);
+            await Plotly.react(node, data, mergeLayout(layout, ACTUALIZAR), mergedConfig);
           } else {
-            await Plotly.newPlot(node, data, mergeLayoutBase(layout, ACTUALIZAR), mergedConfig);
+            await Plotly.newPlot(node, data, mergeLayout(layout, ACTUALIZAR), mergedConfig);
           }
         } catch (e) {
           console.warn('[PlotlyFigure]', e);
           if (!cancelled && ref.current) {
-            await Plotly.newPlot(ref.current, data, mergeLayoutBase(layout, ACTUALIZAR), mergedConfig);
+            await Plotly.newPlot(ref.current, data, mergeLayout(layout, ACTUALIZAR), mergedConfig);
           }
         }
       };
@@ -452,7 +466,7 @@ export function PlotlyFigure({
         }
       });
     };
-  }, [data, layout, config, animateEntry, lineReveal, pieSectorReveal]);
+  }, [data, layout, config, animateEntry, lineReveal, pieSectorReveal, compact]);
 
   return <div ref={ref} className={className} />;
 }

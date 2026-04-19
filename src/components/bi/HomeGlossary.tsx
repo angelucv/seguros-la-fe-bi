@@ -11,7 +11,7 @@ export function HomeGlossaryContent() {
 
       <section>
         <h3 className="text-base font-bold text-[#7823BD]">Abreviaturas</h3>
-        <div className="mt-3 overflow-x-auto rounded-xl border border-slate-200 bg-white">
+        <div className="bi-table-scroll mt-3 rounded-xl border border-slate-200 bg-white">
           <table className="w-full min-w-[280px] text-left text-xs sm:text-sm">
             <tbody className="divide-y divide-slate-100">
               {[

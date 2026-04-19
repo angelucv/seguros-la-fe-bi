@@ -212,23 +212,29 @@ export function ResultadoTecnicoSection({
             Componentes del cuadro hasta <strong>saldo de operaciones</strong>.
           </p>
         </div>
-        <div className="overflow-x-auto p-3 sm:p-4 sm:pt-2">
-          <table className="w-full min-w-[min(100%,520px)] border-separate border-spacing-0 text-xs text-slate-800">
+        <p className="mb-2 flex items-center gap-2 text-[10px] leading-tight text-slate-500 md:hidden">
+          <span aria-hidden className="shrink-0 rounded border border-slate-200 bg-slate-100 px-1.5 py-0.5 font-mono text-[9px]">
+            ← →
+          </span>
+          Desliza horizontalmente para ver todas las columnas.
+        </p>
+        <div className="bi-table-scroll -mx-0.5 rounded-lg p-2 sm:mx-0 sm:p-3 sm:pt-2">
+          <table className="w-max min-w-[600px] max-w-none border-separate border-spacing-0 text-xs text-slate-800">
             <thead className="text-white">
               <tr>
-                <th className="sticky top-0 left-0 z-[45] w-11 min-w-[2.75rem] whitespace-nowrap bg-[#7823BD] px-2 py-2.5 text-left text-[11px] font-semibold shadow-[2px_0_8px_-4px_rgba(0,0,0,0.35)] sm:px-2.5">
+                <th className="sticky top-0 z-40 w-11 min-w-[2.85rem] whitespace-nowrap bg-[#7823BD] px-1.5 py-2 text-left text-[10px] font-semibold max-md:relative max-md:left-auto max-md:shadow-none sm:px-2 sm:text-[11px] sm:py-2.5 md:sticky md:left-0 md:z-[45] md:shadow-[2px_0_8px_-4px_rgba(0,0,0,0.35)] md:min-w-[3rem]">
                   # PNC
                 </th>
-                <th className="sticky top-0 left-11 z-[45] min-w-[9rem] max-w-[14rem] bg-[#7823BD] px-2 py-2.5 text-left text-[11px] font-semibold shadow-[2px_0_8px_-4px_rgba(0,0,0,0.35)] sm:min-w-[11rem] sm:px-2.5">
+                <th className="sticky top-0 z-40 min-w-[8.5rem] bg-[#7823BD] px-1.5 py-2 text-left text-[10px] font-semibold max-md:relative max-md:left-auto max-md:shadow-none sm:min-w-[10rem] sm:px-2 sm:text-[11px] sm:py-2.5 md:sticky md:left-11 md:z-[45] md:max-w-[14rem] md:shadow-[2px_0_8px_-4px_rgba(0,0,0,0.35)] md:min-w-[11rem]">
                   Empresa
                 </th>
-                <th className="sticky top-0 z-40 bg-[#7823BD] px-2 py-2.5 text-right text-[11px] font-semibold shadow-[0_1px_0_0_rgba(255,255,255,0.15)] sm:px-2.5">
+                <th className="sticky top-0 z-40 whitespace-nowrap bg-[#7823BD] px-1.5 py-2 text-right text-[10px] font-semibold shadow-[0_1px_0_0_rgba(255,255,255,0.15)] sm:px-2.5 sm:text-[11px] sm:py-2.5">
                   RT neto
                 </th>
-                <th className="sticky top-0 z-40 bg-[#7823BD] px-2 py-2.5 text-right text-[11px] font-semibold shadow-[0_1px_0_0_rgba(255,255,255,0.15)] sm:px-2.5">
+                <th className="sticky top-0 z-40 whitespace-nowrap bg-[#7823BD] px-1.5 py-2 text-right text-[10px] font-semibold shadow-[0_1px_0_0_rgba(255,255,255,0.15)] sm:px-2.5 sm:text-[11px] sm:py-2.5">
                   Gest. gral.
                 </th>
-                <th className="sticky top-0 z-40 bg-[#7823BD] px-2 py-2.5 text-right text-[11px] font-semibold shadow-[0_1px_0_0_rgba(255,255,255,0.15)] sm:px-2.5">
+                <th className="sticky top-0 z-40 whitespace-nowrap bg-[#7823BD] px-1.5 py-2 text-right text-[10px] font-semibold shadow-[0_1px_0_0_rgba(255,255,255,0.15)] sm:px-2.5 sm:text-[11px] sm:py-2.5">
                   Saldo op.
                 </th>
               </tr>
@@ -241,27 +247,27 @@ export function ResultadoTecnicoSection({
                 return (
                   <tr key={`t1-${r.ranking_boletin}-${r.peer_id}`} className="border-b border-slate-100">
                     <td
-                      className={`sticky left-0 z-10 w-11 min-w-[2.75rem] whitespace-nowrap border-b border-slate-100 px-2 py-2 font-mono tabular-nums shadow-[2px_0_8px_-4px_rgba(15,23,42,0.12)] sm:px-2.5 ${stickyBg}`}
+                      className={`max-md:relative max-md:left-auto max-md:z-0 max-md:shadow-none md:sticky md:left-0 md:z-10 w-11 min-w-[2.85rem] whitespace-nowrap border-b border-slate-100 px-1.5 py-2 align-top font-mono text-[11px] tabular-nums md:shadow-[2px_0_8px_-4px_rgba(15,23,42,0.12)] sm:px-2.5 ${stickyBg}`}
                     >
                       {r.ranking_boletin}
                     </td>
                     <td
-                      className={`sticky left-11 z-10 max-w-[14rem] border-b border-slate-100 px-2 py-2 shadow-[2px_0_8px_-4px_rgba(15,23,42,0.1)] sm:px-2.5 ${stickyBg}`}
+                      className={`max-md:relative max-md:left-auto max-md:z-0 max-md:shadow-none md:sticky md:left-11 md:z-10 md:max-w-[14rem] border-b border-slate-100 px-1.5 py-2 align-top md:shadow-[2px_0_8px_-4px_rgba(15,23,42,0.1)] sm:px-2.5 ${stickyBg}`}
                       title={r.empresa_raw}
                     >
                       <span
-                        className={`block max-w-[12rem] truncate sm:max-w-[14rem] ${marca ? 'font-semibold text-[#7823BD]' : ''}`}
+                        className={`block min-w-0 max-w-[9.5rem] break-words text-[11px] leading-snug sm:max-w-[12rem] md:max-w-[14rem] md:truncate md:leading-normal ${marca ? 'font-semibold text-[#7823BD]' : ''}`}
                       >
                         {r.empresa_raw}
                       </span>
                     </td>
-                    <td className={`border-b border-slate-100 px-2 py-2 text-right font-mono sm:px-2.5 ${rowBg}`}>
+                    <td className={`whitespace-nowrap border-b border-slate-100 px-1.5 py-2 text-right align-top font-mono text-[11px] sm:px-2.5 ${rowBg}`}>
                       <MilesCell value={r.rt_neto_miles_bs} />
                     </td>
-                    <td className={`border-b border-slate-100 px-2 py-2 text-right font-mono sm:px-2.5 ${rowBg}`}>
+                    <td className={`whitespace-nowrap border-b border-slate-100 px-1.5 py-2 text-right align-top font-mono text-[11px] sm:px-2.5 ${rowBg}`}>
                       <MilesCell value={r.gestion_general_miles_bs} />
                     </td>
-                    <td className={`border-b border-slate-100 px-2 py-2 text-right font-mono sm:px-2.5 ${rowBg}`}>
+                    <td className={`whitespace-nowrap border-b border-slate-100 px-1.5 py-2 text-right align-top font-mono text-[11px] sm:px-2.5 ${rowBg}`}>
                       <MilesCell value={r.saldo_operaciones_miles_bs} />
                     </td>
                   </tr>
@@ -297,23 +303,29 @@ export function ResultadoTecnicoSection({
             Saldo de operaciones, primas netas cobradas y porcentaje <strong>% Saldo / PNC</strong> del mismo corte.
           </p>
         </div>
-        <div className="overflow-x-auto p-3 sm:p-4 sm:pt-2">
-          <table className="w-full min-w-[520px] border-separate border-spacing-0 text-xs text-slate-800">
+        <p className="mb-2 flex items-center gap-2 text-[10px] leading-tight text-slate-500 md:hidden">
+          <span aria-hidden className="shrink-0 rounded border border-slate-200 bg-slate-100 px-1.5 py-0.5 font-mono text-[9px]">
+            ← →
+          </span>
+          Desliza horizontalmente para ver todas las columnas.
+        </p>
+        <div className="bi-table-scroll -mx-0.5 rounded-lg p-2 sm:mx-0 sm:p-3 sm:pt-2">
+          <table className="w-max min-w-[620px] max-w-none border-separate border-spacing-0 text-xs text-slate-800">
             <thead className="text-white">
               <tr>
-                <th className="sticky top-0 left-0 z-[45] w-11 min-w-[2.75rem] whitespace-nowrap bg-[#7823BD] px-2 py-2.5 text-left text-[11px] font-semibold shadow-[2px_0_8px_-4px_rgba(0,0,0,0.35)] sm:px-2.5">
+                <th className="sticky top-0 z-40 w-11 min-w-[2.85rem] whitespace-nowrap bg-[#7823BD] px-1.5 py-2 text-left text-[10px] font-semibold max-md:relative max-md:left-auto max-md:shadow-none sm:px-2 sm:text-[11px] sm:py-2.5 md:sticky md:left-0 md:z-[45] md:shadow-[2px_0_8px_-4px_rgba(0,0,0,0.35)] md:min-w-[3rem]">
                   # PNC
                 </th>
-                <th className="sticky top-0 left-11 z-[45] min-w-[9rem] max-w-[14rem] bg-[#7823BD] px-2 py-2.5 text-left text-[11px] font-semibold shadow-[2px_0_8px_-4px_rgba(0,0,0,0.35)] sm:min-w-[11rem] sm:px-2.5">
+                <th className="sticky top-0 z-40 min-w-[8.5rem] bg-[#7823BD] px-1.5 py-2 text-left text-[10px] font-semibold max-md:relative max-md:left-auto max-md:shadow-none sm:min-w-[10rem] sm:px-2 sm:text-[11px] sm:py-2.5 md:sticky md:left-11 md:z-[45] md:max-w-[14rem] md:shadow-[2px_0_8px_-4px_rgba(0,0,0,0.35)] md:min-w-[11rem]">
                   Empresa
                 </th>
-                <th className="sticky top-0 z-40 bg-[#7823BD] px-2 py-2.5 text-right text-[11px] font-semibold shadow-[0_1px_0_0_rgba(255,255,255,0.15)] sm:px-2.5">
+                <th className="sticky top-0 z-40 whitespace-nowrap bg-[#7823BD] px-1.5 py-2 text-right text-[10px] font-semibold shadow-[0_1px_0_0_rgba(255,255,255,0.15)] sm:px-2.5 sm:text-[11px] sm:py-2.5">
                   Saldo op.
                 </th>
-                <th className="sticky top-0 z-40 bg-[#7823BD] px-2 py-2.5 text-right text-[11px] font-semibold shadow-[0_1px_0_0_rgba(255,255,255,0.15)] sm:px-2.5">
+                <th className="sticky top-0 z-40 whitespace-nowrap bg-[#7823BD] px-1.5 py-2 text-right text-[10px] font-semibold shadow-[0_1px_0_0_rgba(255,255,255,0.15)] sm:px-2.5 sm:text-[11px] sm:py-2.5">
                   PNC
                 </th>
-                <th className="sticky top-0 z-40 bg-[#7823BD] px-2 py-2.5 text-right text-[11px] font-semibold shadow-[0_1px_0_0_rgba(255,255,255,0.15)] sm:px-2.5">
+                <th className="sticky top-0 z-40 whitespace-nowrap bg-[#7823BD] px-1.5 py-2 text-right text-[10px] font-semibold shadow-[0_1px_0_0_rgba(255,255,255,0.15)] sm:px-2.5 sm:text-[11px] sm:py-2.5">
                   % Saldo/PNC
                 </th>
               </tr>
@@ -326,27 +338,27 @@ export function ResultadoTecnicoSection({
                 return (
                   <tr key={`t2-${r.ranking_boletin}-${r.peer_id}`} className="border-b border-slate-100">
                     <td
-                      className={`sticky left-0 z-10 w-11 min-w-[2.75rem] whitespace-nowrap border-b border-slate-100 px-2 py-2 font-mono tabular-nums shadow-[2px_0_8px_-4px_rgba(15,23,42,0.12)] sm:px-2.5 ${stickyBg}`}
+                      className={`max-md:relative max-md:left-auto max-md:z-0 max-md:shadow-none md:sticky md:left-0 md:z-10 w-11 min-w-[2.85rem] whitespace-nowrap border-b border-slate-100 px-1.5 py-2 align-top font-mono text-[11px] tabular-nums md:shadow-[2px_0_8px_-4px_rgba(15,23,42,0.12)] sm:px-2.5 ${stickyBg}`}
                     >
                       {r.ranking_boletin}
                     </td>
                     <td
-                      className={`sticky left-11 z-10 max-w-[14rem] border-b border-slate-100 px-2 py-2 shadow-[2px_0_8px_-4px_rgba(15,23,42,0.1)] sm:px-2.5 ${stickyBg}`}
+                      className={`max-md:relative max-md:left-auto max-md:z-0 max-md:shadow-none md:sticky md:left-11 md:z-10 md:max-w-[14rem] border-b border-slate-100 px-1.5 py-2 align-top md:shadow-[2px_0_8px_-4px_rgba(15,23,42,0.1)] sm:px-2.5 ${stickyBg}`}
                       title={r.empresa_raw}
                     >
                       <span
-                        className={`block max-w-[12rem] truncate sm:max-w-[14rem] ${marca ? 'font-semibold text-[#7823BD]' : ''}`}
+                        className={`block min-w-0 max-w-[9.5rem] break-words text-[11px] leading-snug sm:max-w-[12rem] md:max-w-[14rem] md:truncate md:leading-normal ${marca ? 'font-semibold text-[#7823BD]' : ''}`}
                       >
                         {r.empresa_raw}
                       </span>
                     </td>
-                    <td className={`border-b border-slate-100 px-2 py-2 text-right font-mono sm:px-2.5 ${rowBg}`}>
+                    <td className={`whitespace-nowrap border-b border-slate-100 px-1.5 py-2 text-right align-top font-mono text-[11px] sm:px-2.5 ${rowBg}`}>
                       <MilesCell value={r.saldo_operaciones_miles_bs} />
                     </td>
-                    <td className={`border-b border-slate-100 px-2 py-2 text-right font-mono sm:px-2.5 ${rowBg}`}>
+                    <td className={`whitespace-nowrap border-b border-slate-100 px-1.5 py-2 text-right align-top font-mono text-[11px] sm:px-2.5 ${rowBg}`}>
                       <MilesCell value={r.pnc_miles_bs} />
                     </td>
-                    <td className={`border-b border-slate-100 px-2 py-2 text-right font-mono sm:px-2.5 ${rowBg}`}>
+                    <td className={`whitespace-nowrap border-b border-slate-100 px-1.5 py-2 text-right align-top font-mono text-[11px] sm:px-2.5 ${rowBg}`}>
                       <PctCell value={r.pct_saldo_sobre_pnc} />
                     </td>
                   </tr>

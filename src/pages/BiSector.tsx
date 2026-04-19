@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { fetchApiJson } from '@/lib/apiFetch';
+import { useCompactViewport } from '../lib/useCompactViewport';
 import { BRAND_DISPLAY_NAME, SECTOR_COMPARATIVA_MAX_EMPRESAS } from '../../lib/bi/config';
 import type { Data, Layout } from 'plotly.js';
 import { PlotlyFigure } from '../components/charts/PlotlyFigure';
@@ -395,6 +396,7 @@ function SectorQuickNav({ onOpenFunerario }: { onOpenFunerario?: () => void }) {
 }
 
 function GaugeCard({ t, corteLine }: { t: SectorApi['tacometers'][0]; corteLine: string | null }) {
+  const compact = useCompactViewport();
   const { gauge, layout } = useMemo(() => {
     const esc = (s: string) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
     const sub = corteLine
@@ -430,26 +432,26 @@ function GaugeCard({ t, corteLine }: { t: SectorApi['tacometers'][0]; corteLine:
       domain: { x: [0.06, 0.94], y: [0.08, 0.92] },
     };
     const lay: Partial<Layout> = {
-      height: 380,
-      margin: { t: 76, b: 90, l: 8, r: 8 },
+      height: compact ? 340 : 380,
+      margin: compact ? { t: 62, b: 78, l: 4, r: 4 } : { t: 76, b: 90, l: 8, r: 8 },
       paper_bgcolor: '#F0F4FB',
       annotations:
         t.sectorAvg != null
           ? [
               {
                 x: 0.5,
-                y: -0.08,
+                y: compact ? -0.06 : -0.08,
                 xref: 'paper',
                 yref: 'paper',
                 showarrow: false,
                 text: `<b style="color:#087F5B">Promedio sector</b> ${t.sectorAvg.toFixed(1)} %<br><b style="color:#7823BD">${BRAND_DISPLAY_NAME}</b> ${t.valueEmpresa.toFixed(1)} %`,
-                font: { size: 12, color: '#343A40' },
+                font: { size: compact ? 11 : 12, color: '#343A40' },
               },
             ]
           : [],
     };
     return { gauge: g, layout: lay };
-  }, [t.title, t.valueEmpresa, t.sectorAvg, t.max, t.needleColor, BRAND_DISPLAY_NAME, corteLine]);
+  }, [t.title, t.valueEmpresa, t.sectorAvg, t.max, t.needleColor, BRAND_DISPLAY_NAME, corteLine, compact]);
 
   return <PlotlyFigure data={[gauge]} layout={layout} config={{ displayModeBar: false }} />;
 }
@@ -466,8 +468,8 @@ function TabVol({ rows, fech26 }: { rows: SectorApi['tabVol']; fech26: string })
   return (
     <div className="space-y-3">
       <h3 className="font-semibold text-[#7823BD]">Detalle volumen — {fech26.slice(0, 7)} · USD</h3>
-      <div className="overflow-x-auto rounded-xl border border-slate-200 bg-white">
-        <table className="w-full min-w-[640px] text-left text-sm">
+      <div className="bi-table-scroll rounded-xl border border-slate-200 bg-white">
+        <table className="w-max min-w-[640px] max-w-none text-left text-sm">
           <thead className="bg-slate-100 text-slate-800">
             <tr>
               <th className="px-3 py-2">Ranking</th>
@@ -481,7 +483,7 @@ function TabVol({ rows, fech26 }: { rows: SectorApi['tabVol']; fech26: string })
             {rows.map((r, i) => (
               <tr key={i} className="odd:bg-slate-50">
                 <td className="px-3 py-1.5">{r.ranking ?? '—'}</td>
-                <td className="px-3 py-1.5">{r.empresa}</td>
+                <td className="max-w-[11rem] break-words px-3 py-1.5 sm:max-w-none">{r.empresa}</td>
                 <td className="px-3 py-1.5 font-mono">{Number.isFinite(r.usd) ? r.usd.toLocaleString('es-VE', { maximumFractionDigits: 2 }) : '—'}</td>
                 <td className="px-3 py-1.5 font-mono">{r.pct != null ? r.pct.toFixed(2).replace('.', ',') : '—'}</td>
                 <td className="px-3 py-1.5 font-mono">{r.milesBs.toLocaleString('es-VE', { maximumFractionDigits: 0 })}</td>
@@ -507,6 +509,10 @@ function TabInd({
   indicadores29: SectorApi['indicadores29'];
   anioCurso: number;
 }) {
+  const compact = useCompactViewport();
+  const barMarginInd = compact
+    ? { t: 44, b: 58, l: 36, r: 10 }
+    : { t: 52, b: 72, l: 44, r: 20 };
   const metricLabels = tabIndTable[0] ? Object.keys(tabIndTable[0].metrics) : [];
   return (
     <div className="space-y-8">
@@ -515,8 +521,8 @@ function TabInd({
         {tabIndTable.length === 0 ? (
           <p className="mt-2 text-sm text-amber-800">No hay filas de índices para la banda de comparativa en el corte actual.</p>
         ) : (
-          <div className="mt-3 overflow-x-auto rounded-xl border border-slate-200">
-            <table className="w-full min-w-[900px] text-left text-xs">
+          <div className="bi-table-scroll mt-3 rounded-xl border border-slate-200">
+            <table className="w-max min-w-[900px] max-w-none text-left text-xs">
               <thead className="bg-slate-100">
                 <tr>
                   <th className="px-2 py-2">Empresa</th>
@@ -555,11 +561,11 @@ function TabInd({
             hovertemplate: '%{x}<br>%{y:,.4f}<extra></extra>',
           }));
           const layout: Partial<Layout> = {
-            height: 300,
-            title: { text: `<b>${b.title}</b>`, x: 0.5, xanchor: 'center', font: { size: 12 } },
+            height: compact ? 280 : 300,
+            title: { text: `<b>${b.title}</b>`, x: 0.5, xanchor: 'center', font: { size: compact ? 11 : 12 } },
             yaxis: { title: { text: '' } },
             showlegend: false,
-            margin: { t: 52, b: 72, l: 44, r: 20 },
+            margin: barMarginInd,
           };
           return <PlotlyFigure key={b.title} data={traces} layout={layout} />;
         })}
@@ -568,8 +574,8 @@ function TabInd({
       <div>
         <h3 className="font-semibold text-[#7823BD]">Indicadores financieros (referencia {dataYear})</h3>
         <p className="text-xs text-slate-500">Cifras anuales; el periodo puede no coincidir con series mensuales.</p>
-        <div className="mt-3 overflow-x-auto rounded-xl border border-slate-200">
-          <table className="w-full min-w-[640px] text-left text-sm">
+        <div className="bi-table-scroll mt-3 rounded-xl border border-slate-200">
+          <table className="w-max min-w-[640px] max-w-none text-left text-sm">
             <thead className="bg-slate-100">
               <tr>
                 <th className="px-2 py-2">Empresa</th>
@@ -613,6 +619,10 @@ function TabEvo({
   tabEvoIndices: SectorApi['tabEvoIndices'];
   anioCurso: number;
 }) {
+  const compact = useCompactViewport();
+  const barMarginEvo = compact
+    ? { t: 48, b: 68, l: 40, r: 10 }
+    : { t: 56, b: 80, l: 48, r: 16 };
   return (
     <div className="space-y-8">
       <div>
@@ -641,12 +651,12 @@ function TabEvo({
                 marker: { color: tr.color, line: { width: 1, color: '#fff' } },
               }));
               const layout: Partial<Layout> = {
-                height: 280,
-                title: { text: title, font: { size: 11, color: '#7823BD' } },
+                height: compact ? 260 : 280,
+                title: { text: title, font: { size: compact ? 10 : 11, color: '#7823BD' } },
                 barmode: 'group',
-                xaxis: { tickangle: -35 },
-                legend: { orientation: 'h', y: 1.12, x: 0.5, xanchor: 'center' },
-                margin: { t: 56, b: 80, l: 48, r: 16 },
+                xaxis: { tickangle: compact ? -50 : -35 },
+                legend: { orientation: 'h', y: compact ? 1.08 : 1.12, x: 0.5, xanchor: 'center' },
+                margin: barMarginEvo,
               };
               return <PlotlyFigure key={block.metricIndex} data={traces} layout={layout} />;
             })}
