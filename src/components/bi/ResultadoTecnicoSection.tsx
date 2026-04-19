@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState, type ReactNode } from 'react';
 import { fetchApiJson } from '@/lib/apiFetch';
 import { cn } from '@/lib/utils';
 import { BRAND_DISPLAY_NAME, BRAND_PEER_ID } from '../../../lib/bi/config';
@@ -86,6 +86,131 @@ function rowClasses(marca: boolean, zebra: boolean): { rowBg: string; stickyBg: 
   return { rowBg, stickyBg };
 }
 
+function MetricaFila({ label, children }: { label: string; children: ReactNode }) {
+  return (
+    <div className="flex items-baseline justify-between gap-3 border-b border-slate-200/80 py-2.5 last:border-0">
+      <span className="text-[12px] font-medium text-slate-600">{label}</span>
+      <div className="text-right text-[13px] font-semibold tabular-nums text-slate-900">{children}</div>
+    </div>
+  );
+}
+
+/** Vista móvil: tarjeta principal Seguros La Fe — resultado técnico hasta saldo de operaciones. */
+function TarjetaEjecutivoLaFeT1({ r }: { r: DispRow }) {
+  return (
+    <div className="rounded-2xl border-2 border-[#7823BD]/40 bg-gradient-to-br from-[#FFC857]/30 via-white to-violet-50/50 p-4 shadow-lg ring-1 ring-[#7823BD]/15">
+      <p className="text-center text-[10px] font-bold uppercase tracking-[0.14em] text-[#7823BD]">
+        {BRAND_DISPLAY_NAME}
+      </p>
+      <p className="mt-1 text-center text-sm text-slate-700">
+        Posición en el grupo por PNC:{' '}
+        <span className="font-mono text-lg font-bold text-slate-900">#{r.ranking_boletin}</span>
+      </p>
+      <p className="mt-0.5 text-center text-[11px] text-slate-500">Importes en miles de Bs.</p>
+      <dl className="mt-3">
+        <MetricaFila label="RT neto">
+          <MilesCell value={r.rt_neto_miles_bs} />
+        </MetricaFila>
+        <MetricaFila label="Gestión general">
+          <MilesCell value={r.gestion_general_miles_bs} />
+        </MetricaFila>
+        <MetricaFila label="Saldo de operaciones">
+          <MilesCell value={r.saldo_operaciones_miles_bs} />
+        </MetricaFila>
+      </dl>
+    </div>
+  );
+}
+
+/** Vista móvil: fila compacta — resto de empresas (tabla 1). */
+function TarjetaCompactaT1({ r }: { r: DispRow }) {
+  return (
+    <div className="rounded-xl border border-slate-200/90 bg-white px-3 py-2.5 shadow-sm">
+      <div className="flex items-start justify-between gap-2">
+        <span className="font-mono text-[11px] font-semibold text-slate-500">#{r.ranking_boletin}</span>
+        <p className="min-w-0 flex-1 text-right text-[12px] font-medium leading-snug text-slate-800">{r.empresa_raw}</p>
+      </div>
+      <div className="mt-2 grid grid-cols-3 gap-1.5 text-center">
+        <div className="rounded-md bg-slate-50 px-1 py-1.5">
+          <p className="text-[9px] font-medium uppercase text-slate-500">RT neto</p>
+          <div className="mt-0.5 font-mono text-[11px] text-slate-900">
+            <MilesCell value={r.rt_neto_miles_bs} />
+          </div>
+        </div>
+        <div className="rounded-md bg-slate-50 px-1 py-1.5">
+          <p className="text-[9px] font-medium uppercase text-slate-500">Gest. gral.</p>
+          <div className="mt-0.5 font-mono text-[11px] text-slate-900">
+            <MilesCell value={r.gestion_general_miles_bs} />
+          </div>
+        </div>
+        <div className="rounded-md bg-slate-50 px-1 py-1.5">
+          <p className="text-[9px] font-medium uppercase text-slate-500">Saldo op.</p>
+          <div className="mt-0.5 font-mono text-[11px] text-slate-900">
+            <MilesCell value={r.saldo_operaciones_miles_bs} />
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function TarjetaEjecutivoLaFeT2({ r }: { r: DispRow }) {
+  return (
+    <div className="rounded-2xl border-2 border-[#7823BD]/40 bg-gradient-to-br from-[#FFC857]/30 via-white to-violet-50/50 p-4 shadow-lg ring-1 ring-[#7823BD]/15">
+      <p className="text-center text-[10px] font-bold uppercase tracking-[0.14em] text-[#7823BD]">
+        {BRAND_DISPLAY_NAME}
+      </p>
+      <p className="mt-1 text-center text-sm text-slate-700">
+        Posición por PNC:{' '}
+        <span className="font-mono text-lg font-bold text-slate-900">#{r.ranking_boletin}</span>
+      </p>
+      <p className="mt-0.5 text-center text-[11px] text-slate-500">Miles de Bs. · mismo corte</p>
+      <dl className="mt-3">
+        <MetricaFila label="Saldo de operaciones">
+          <MilesCell value={r.saldo_operaciones_miles_bs} />
+        </MetricaFila>
+        <MetricaFila label="PNC (primas netas cobradas)">
+          <MilesCell value={r.pnc_miles_bs} />
+        </MetricaFila>
+        <MetricaFila label="% Saldo / PNC">
+          <PctCell value={r.pct_saldo_sobre_pnc} />
+        </MetricaFila>
+      </dl>
+    </div>
+  );
+}
+
+function TarjetaCompactaT2({ r }: { r: DispRow }) {
+  return (
+    <div className="rounded-xl border border-slate-200/90 bg-white px-3 py-2.5 shadow-sm">
+      <div className="flex items-start justify-between gap-2">
+        <span className="font-mono text-[11px] font-semibold text-slate-500">#{r.ranking_boletin}</span>
+        <p className="min-w-0 flex-1 text-right text-[12px] font-medium leading-snug text-slate-800">{r.empresa_raw}</p>
+      </div>
+      <div className="mt-2 grid grid-cols-3 gap-1.5 text-center">
+        <div className="rounded-md bg-slate-50 px-1 py-1.5">
+          <p className="text-[9px] font-medium uppercase text-slate-500">Saldo op.</p>
+          <div className="mt-0.5 font-mono text-[11px] text-slate-900">
+            <MilesCell value={r.saldo_operaciones_miles_bs} />
+          </div>
+        </div>
+        <div className="rounded-md bg-slate-50 px-1 py-1.5">
+          <p className="text-[9px] font-medium uppercase text-slate-500">PNC</p>
+          <div className="mt-0.5 font-mono text-[11px] text-slate-900">
+            <MilesCell value={r.pnc_miles_bs} />
+          </div>
+        </div>
+        <div className="rounded-md bg-slate-50 px-1 py-1.5">
+          <p className="text-[9px] font-medium uppercase text-slate-500">% S/PNC</p>
+          <div className="mt-0.5 font-mono text-[11px] text-slate-900">
+            <PctCell value={r.pct_saldo_sobre_pnc} />
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export function ResultadoTecnicoSection({
   title,
   fechRef,
@@ -161,6 +286,12 @@ export function ResultadoTecnicoSection({
     return r?.pct_saldo_sobre_pnc != null && Number.isFinite(r.pct_saldo_sobre_pnc) ? r.pct_saldo_sobre_pnc : null;
   }, [rankingPorPct, payload?.disp]);
 
+  const filaLaFe = useMemo(() => payload?.disp.find((r) => isMarcaLaFe(r)) ?? null, [payload?.disp]);
+  const filasSinLaFe = useMemo(
+    () => (payload?.disp ?? []).filter((r) => !isMarcaLaFe(r)),
+    [payload?.disp]
+  );
+
   if (!payload) {
     return (
       <div className="rounded-2xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900">
@@ -211,14 +342,45 @@ export function ResultadoTecnicoSection({
           <p className="mt-1 text-xs text-slate-500">
             Componentes del cuadro hasta <strong>saldo de operaciones</strong>.
           </p>
+          {filaLaFe ? (
+            <p className="mt-3 rounded-lg border border-[#7823BD]/15 bg-[#7823BD]/5 px-3 py-2.5 text-center text-[12px] leading-snug text-slate-800 md:hidden">
+              <strong className="text-[#7823BD]">{BRAND_DISPLAY_NAME}</strong>: puesto{' '}
+              <span className="font-mono font-bold text-slate-900">#{filaLaFe.ranking_boletin}</span> por PNC en este
+              grupo · importes en miles de Bs. · <span className="text-slate-600">{mesAnioCorte(ts)}</span>
+            </p>
+          ) : (
+            <p className="mt-3 rounded-lg border border-slate-200 bg-slate-50/80 px-3 py-2 text-center text-[11px] text-slate-600 md:hidden">
+              Mismo grupo comparativo · miles de Bs. · {mesAnioCorte(ts)}
+            </p>
+          )}
         </div>
-        <p className="mb-2 flex items-center gap-2 text-[10px] leading-tight text-slate-500 md:hidden">
-          <span aria-hidden className="shrink-0 rounded border border-slate-200 bg-slate-100 px-1.5 py-0.5 font-mono text-[9px]">
-            ← →
-          </span>
-          Desliza horizontalmente para ver todas las columnas.
-        </p>
-        <div className="bi-table-scroll -mx-0.5 rounded-lg p-2 sm:mx-0 sm:p-3 sm:pt-2">
+
+        <div className="md:hidden space-y-3 px-3 pb-4 pt-2">
+          {filaLaFe ? (
+            <>
+              <TarjetaEjecutivoLaFeT1 r={filaLaFe} />
+              {filasSinLaFe.length > 0 ? (
+                <div className="space-y-2">
+                  <p className="px-0.5 text-[10px] font-bold uppercase tracking-[0.08em] text-slate-500">
+                    Resto del grupo comparativo
+                  </p>
+                  {filasSinLaFe.map((r) => (
+                    <TarjetaCompactaT1 key={`m-t1-${r.ranking_boletin}-${r.peer_id}`} r={r} />
+                  ))}
+                </div>
+              ) : null}
+            </>
+          ) : (
+            <div className="space-y-2">
+              {payload.disp.map((r) => (
+                <TarjetaCompactaT1 key={`m-t1-all-${r.ranking_boletin}-${r.peer_id}`} r={r} />
+              ))}
+            </div>
+          )}
+          <p className="text-center text-[10px] text-slate-500">Cuadro de resultados · datos públicos SUDEASEG.</p>
+        </div>
+
+        <div className="bi-table-scroll hidden -mx-0.5 rounded-lg p-2 sm:mx-0 sm:p-3 sm:pt-2 md:block">
           <table className="w-max min-w-[600px] max-w-none border-separate border-spacing-0 text-xs text-slate-800">
             <thead className="text-white">
               <tr>
@@ -302,14 +464,39 @@ export function ResultadoTecnicoSection({
           <p className="mt-1 text-xs text-slate-500">
             Saldo de operaciones, primas netas cobradas y porcentaje <strong>% Saldo / PNC</strong> del mismo corte.
           </p>
+          {filaLaFe ? (
+            <p className="mt-3 rounded-lg border border-[#7823BD]/15 bg-[#7823BD]/5 px-3 py-2.5 text-center text-[12px] leading-snug text-slate-800 md:hidden">
+              Mismo corte que arriba · <strong className="text-[#7823BD]">{BRAND_DISPLAY_NAME}</strong> en puesto{' '}
+              <span className="font-mono font-bold">#{filaLaFe.ranking_boletin}</span> por PNC.
+            </p>
+          ) : null}
         </div>
-        <p className="mb-2 flex items-center gap-2 text-[10px] leading-tight text-slate-500 md:hidden">
-          <span aria-hidden className="shrink-0 rounded border border-slate-200 bg-slate-100 px-1.5 py-0.5 font-mono text-[9px]">
-            ← →
-          </span>
-          Desliza horizontalmente para ver todas las columnas.
-        </p>
-        <div className="bi-table-scroll -mx-0.5 rounded-lg p-2 sm:mx-0 sm:p-3 sm:pt-2">
+
+        <div className="md:hidden space-y-3 px-3 pb-4 pt-2">
+          {filaLaFe ? (
+            <>
+              <TarjetaEjecutivoLaFeT2 r={filaLaFe} />
+              {filasSinLaFe.length > 0 ? (
+                <div className="space-y-2">
+                  <p className="px-0.5 text-[10px] font-bold uppercase tracking-[0.08em] text-slate-500">
+                    Resto del grupo comparativo
+                  </p>
+                  {filasSinLaFe.map((r) => (
+                    <TarjetaCompactaT2 key={`m-t2-${r.ranking_boletin}-${r.peer_id}`} r={r} />
+                  ))}
+                </div>
+              ) : null}
+            </>
+          ) : (
+            <div className="space-y-2">
+              {payload.disp.map((r) => (
+                <TarjetaCompactaT2 key={`m-t2-all-${r.ranking_boletin}-${r.peer_id}`} r={r} />
+              ))}
+            </div>
+          )}
+        </div>
+
+        <div className="bi-table-scroll hidden -mx-0.5 rounded-lg p-2 sm:mx-0 sm:p-3 sm:pt-2 md:block">
           <table className="w-max min-w-[620px] max-w-none border-separate border-spacing-0 text-xs text-slate-800">
             <thead className="text-white">
               <tr>
