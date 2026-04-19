@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+import { BRAND_PEER_ID } from '@/lib/bi/config';
 import {
   alignCredixLineSeriesByDate,
   applyPeerToggle,
@@ -73,6 +74,21 @@ describe('pickInitialPeerSelection', () => {
       seriesPart: [],
     });
     expect(pickInitialPeerSelection(h)).toEqual(['a', 'c']);
+  });
+
+  it('prioriza Seguros La Fe, Altamira y Previsora cuando están en catálogo y con serie', () => {
+    const h = normalizeHistoricoPayload({
+      chartCatalog: [
+        { peer_id: BRAND_PEER_ID, name: 'Fe C.A., Seguros', ranking: 15 },
+        { peer_id: 'alt', name: 'Altamira C.A., Seguros', ranking: 2 },
+        { peer_id: 'prev', name: 'Previsora Venezolana C.A.', ranking: 5 },
+      ],
+      defaultChartPeerIds: [],
+      seriesFlujoUsd: [serie(BRAND_PEER_ID), serie('alt'), serie('prev')],
+      seriesFlujoBs: [],
+      seriesPart: [serie(BRAND_PEER_ID), serie('alt'), serie('prev')],
+    });
+    expect(pickInitialPeerSelection(h)).toEqual([BRAND_PEER_ID, 'alt', 'prev']);
   });
 });
 

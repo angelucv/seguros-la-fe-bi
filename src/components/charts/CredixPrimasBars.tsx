@@ -3,7 +3,6 @@ import {
   Bar,
   CartesianGrid,
   ComposedChart,
-  Legend,
   Line,
   ResponsiveContainer,
   Tooltip,
@@ -112,16 +111,21 @@ export function CredixPrimasBars({
   const compact = useCompactViewport();
 
   useEffect(() => {
+    if (compact) {
+      setVisibleCount(fullRows.length);
+      return;
+    }
     setVisibleCount(1);
-  }, [fingerprint]);
+  }, [fingerprint, compact, fullRows.length]);
 
   useEffect(() => {
+    if (compact) return;
     if (visibleCount >= fullRows.length) return;
     const t = window.setTimeout(() => setVisibleCount((n) => n + 1), 420);
     return () => clearTimeout(t);
-  }, [visibleCount, fullRows.length]);
+  }, [visibleCount, fullRows.length, compact]);
 
-  const data = fullRows.slice(0, Math.max(1, visibleCount));
+  const data = compact ? fullRows : fullRows.slice(0, Math.max(1, visibleCount));
   const nameByPeer = Object.fromEntries(series.map((s) => [s.peer_id, s.name]));
 
   return (
@@ -134,15 +138,15 @@ export function CredixPrimasBars({
       />
       {subtitle && <p className="mt-1 text-center text-xs font-medium text-slate-600">{subtitle}</p>}
       <div className="mt-4 rounded-xl bg-white/95 p-2 pt-4 shadow-inner">
-        <div className="h-[min(460px,75vh)] w-full min-h-[260px] sm:min-h-[320px]">
+        <div className="h-[min(420px,70vh)] w-full min-h-[220px] sm:min-h-[320px]">
           <ResponsiveContainer width="100%" height="100%">
             <ComposedChart
               data={data}
               margin={{
-                top: 16,
-                right: compact ? 8 : 12,
-                left: compact ? 2 : 4,
-                bottom: compact ? 52 : 28,
+                top: 12,
+                right: compact ? 6 : 12,
+                left: compact ? 0 : 4,
+                bottom: compact ? 8 : 28,
               }}
               barGap={4}
               barCategoryGap="18%"
@@ -187,52 +191,6 @@ export function CredixPrimasBars({
                   );
                 }}
               />
-              <Legend
-                content={({ payload }) => {
-                  if (!payload?.length) return null;
-                  const seen = new Set<string>();
-                  const rows = payload.filter((entry) => {
-                    const id = String(entry.value ?? '');
-                    if (!id || seen.has(id)) return false;
-                    seen.add(id);
-                    return true;
-                  });
-                  return (
-                    <ul
-                      className="flex flex-wrap justify-center gap-x-6 gap-y-2 pt-3 text-[12px] font-semibold"
-                      style={{ listStyle: 'none', margin: 0, padding: 0 }}
-                    >
-                      {rows.map((entry) => {
-                        const id = String(entry.value ?? '');
-                        const label = nameByPeer[id] ?? id;
-                        const fill = seriesForChart.find((x) => x.peer_id === id)?.color ?? entry.color;
-                        const labelColor = id === BRAND_PEER_ID ? '#0f172a' : (entry.color ?? '#0f172a');
-                        return (
-                          <li key={id} className="inline-flex items-center gap-2">
-                            <span
-                              className="inline-block h-3 w-3 shrink-0 rounded-sm border border-slate-200"
-                              style={{ backgroundColor: fill }}
-                              aria-hidden
-                            />
-                            <svg width="20" height="10" viewBox="0 0 20 10" aria-hidden className="shrink-0">
-                              <polyline
-                                points="0,8 6,4 12,6 20,2"
-                                fill="none"
-                                stroke={fill}
-                                strokeWidth="2"
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                              />
-                              <circle cx="12" cy="6" r="2.2" fill="#fff" stroke={fill} strokeWidth="1.5" />
-                            </svg>
-                            <span style={{ color: labelColor }}>{label}</span>
-                          </li>
-                        );
-                      })}
-                    </ul>
-                  );
-                }}
-              />
               {seriesForChart.map((s) => (
                 <Bar
                   key={`bar-${s.peer_id}`}
@@ -270,6 +228,38 @@ export function CredixPrimasBars({
             </ComposedChart>
           </ResponsiveContainer>
         </div>
+        <ul
+          className="mt-2 flex list-none flex-col gap-2 border-t border-slate-100 px-1 pb-2 pt-3 text-left sm:flex-row sm:flex-wrap sm:justify-center sm:gap-x-6 sm:text-center"
+          style={{ margin: 0, paddingLeft: 0, paddingRight: 0 }}
+        >
+          {seriesForChart.map((s) => {
+            const label = nameByPeer[s.peer_id] ?? s.peer_id;
+            const labelColor = s.peer_id === BRAND_PEER_ID ? '#0f172a' : s.color;
+            return (
+              <li key={`leg-${s.peer_id}`} className="flex items-start gap-2 text-[11px] font-semibold sm:items-center sm:text-[12px]">
+                <span
+                  className="mt-0.5 inline-block h-3 w-3 shrink-0 rounded-sm border border-slate-200 sm:mt-0"
+                  style={{ backgroundColor: s.color }}
+                  aria-hidden
+                />
+                <svg width="20" height="10" viewBox="0 0 20 10" aria-hidden className="mt-1 shrink-0 sm:mt-0">
+                  <polyline
+                    points="0,8 6,4 12,6 20,2"
+                    fill="none"
+                    stroke={s.color}
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                  <circle cx="12" cy="6" r="2.2" fill="#fff" stroke={s.color} strokeWidth="1.5" />
+                </svg>
+                <span className="min-w-0 leading-snug" style={{ color: labelColor }}>
+                  {label}
+                </span>
+              </li>
+            );
+          })}
+        </ul>
       </div>
     </div>
   );

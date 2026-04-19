@@ -651,14 +651,36 @@ function TabEvo({
                 marker: { color: tr.color, line: { width: 1, color: '#fff' } },
               }));
               const layout: Partial<Layout> = {
-                height: compact ? 260 : 280,
-                title: { text: title, font: { size: compact ? 10 : 11, color: '#7823BD' } },
+                height: compact ? 320 : 280,
+                title: { text: title, font: { size: compact ? 10 : 11, color: '#7823BD' }, y: 0.98, yanchor: 'top' },
                 barmode: 'group',
-                xaxis: { tickangle: compact ? -50 : -35 },
-                legend: { orientation: 'h', y: compact ? 1.08 : 1.12, x: 0.5, xanchor: 'center' },
-                margin: barMarginEvo,
+                xaxis: {
+                  tickangle: compact ? -42 : -35,
+                  automargin: true,
+                },
+                yaxis: { automargin: true, rangemode: 'tozero' },
+                legend: compact
+                  ? {
+                      orientation: 'h',
+                      y: -0.32,
+                      yanchor: 'top',
+                      x: 0.5,
+                      xanchor: 'center',
+                      font: { size: 9 },
+                    }
+                  : { orientation: 'h', y: 1.1, x: 0.5, xanchor: 'center' },
+                margin: compact
+                  ? { t: 40, b: 120, l: 50, r: 14 }
+                  : barMarginEvo,
               };
-              return <PlotlyFigure key={block.metricIndex} data={traces} layout={layout} />;
+              return (
+                <PlotlyFigure
+                  key={block.metricIndex}
+                  data={traces}
+                  layout={layout}
+                  className="min-h-[300px] w-full sm:min-h-[280px]"
+                />
+              );
             })}
           </div>
         )}

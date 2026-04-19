@@ -141,6 +141,7 @@ export const CredixHistoricoLines = forwardRef<HTMLDivElement, Props>(function C
 
   const showBrush = enableBrush && rows.length > 12;
   const chartBottom = showBrush ? (compact ? 92 : 100) : compact ? 56 : 64;
+  const yTickUseShort = compact && Math.abs(yDomain[1] - yDomain[0]) > 500;
 
   const ordered = [...series].sort((a, b) => {
     if (a.peer_id === areaPeerId) return 1;
@@ -243,15 +244,29 @@ export const CredixHistoricoLines = forwardRef<HTMLDivElement, Props>(function C
                 tick={{ fontSize: compact ? 9 : 10, fill: '#334155', fontWeight: 500 }}
                 tickLine={{ stroke: '#94a3b8' }}
                 axisLine={{ stroke: '#94a3b8' }}
+                tickFormatter={(v) => {
+                  const n = Number(v);
+                  if (!Number.isFinite(n)) return '';
+                  if (yTickUseShort) {
+                    const a = Math.abs(n);
+                    if (a >= 1e9) return `${(n / 1e9).toFixed(2)}G`;
+                    if (a >= 1e6) return `${(n / 1e6).toFixed(2)}M`;
+                    if (a >= 1e3) return `${(n / 1e3).toFixed(1)}k`;
+                  }
+                  return formatValue(n);
+                }}
                 label={{
-                  value: yAxisLabel,
+                  value:
+                    compact && yAxisLabel.length > 32
+                      ? `${yAxisLabel.slice(0, 30)}…`
+                      : yAxisLabel,
                   angle: -90,
                   position: 'insideLeft',
                   fill: '#1e293b',
                   fontSize: compact ? 10 : 11,
                   fontWeight: 600,
                 }}
-                width={compact ? 48 : 56}
+                width={compact ? 52 : 56}
               />
               <Tooltip
                 content={({ active, payload, label }) => {

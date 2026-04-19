@@ -203,8 +203,10 @@ export function BiHistorico() {
         <div>
           <h3 className="text-base font-bold text-[#7823BD]">Primas netas del mes (serie histórica)</h3>
           <p className="mt-1 text-xs text-slate-500">
-            Primero elija <strong>empresas</strong> (aparecen hasta 5 por defecto). La serie de{' '}
-            <strong>Seguros La Fe</strong> lleva sombra bajo la curva en millones USD. El eje y el selector inferior solo
+            Por defecto se seleccionan <strong>Seguros La Fe</strong>, <strong>Altamira</strong> y{' '}
+            <strong>Previsora</strong> (si constan en los datos). Puede activar otras empresas (hasta{' '}
+            {MAX_CHART_EMPRESAS} a la vez). La serie de <strong>Seguros La Fe</strong> lleva sombra bajo la curva en
+            millones USD. El eje y el selector inferior solo
             incluyen meses desde <strong>enero de 2023</strong> (no es posible desplazarse a años anteriores). Luego ajuste{' '}
             <strong>USD / Bs.</strong> y, si lo necesita, la metodología más abajo.
           </p>

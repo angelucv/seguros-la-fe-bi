@@ -154,15 +154,43 @@ export function peerIdsForChartChipPool(h: HistApi): string[] {
   return takePeersByRanking(h.chartCatalog.map((c) => c.peer_id), h.chartCatalog, MAX_CHART_EMPRESAS, prio);
 }
 
+/**
+ * Selección por defecto deseada en BI Histórico: Seguros La Fe, Altamira y Previsora
+ * (si existen en catálogo y tienen serie).
+ */
+export function preferredHistoricoPeerIds(h: HistApi): string[] {
+  const cat = h.chartCatalog;
+  const out: string[] = [];
+  const push = (id: string) => {
+    if (!out.includes(id)) out.push(id);
+  };
+  const fe = cat.find((c) => c.peer_id === BRAND_PEER_ID);
+  if (fe) push(fe.peer_id);
+  const alt = cat.find((c) => c.name.toLowerCase().includes('altamira'));
+  if (alt) push(alt.peer_id);
+  const prev = cat.find((c) => c.name.toLowerCase().includes('previsora'));
+  if (prev) push(prev.peer_id);
+  return out;
+}
+
+function hasSeriesForPeer(h: HistApi, peerId: string): boolean {
+  const hit = (arr: CredixLineSeries[]) => arr.some((s) => s.peer_id === peerId);
+  return hit(h.seriesFlujoUsd) || hit(h.seriesFlujoBs) || hit(h.seriesPart);
+}
+
 export function pickInitialPeerSelection(h: HistApi): string[] {
+  const preferred = preferredHistoricoPeerIds(h).filter((id) => hasSeriesForPeer(h, id));
+  if (preferred.length > 0) return preferred.slice(0, MAX_CHART_EMPRESAS);
   return peerIdsForChartChipPool(h);
 }
 
-/** Filas de catálogo solo para chips (máx. 5 empresas), sin listar todo el ranking. */
+/** Filas de catálogo para chips: grupo analítico + La Fe / Altamira / Previsora si faltaban. */
 export function catalogRowsForChartChips(h: HistApi): ChartCatalogRow[] {
-  const ids = peerIdsForChartChipPool(h);
+  const basePool = peerIdsForChartChipPool(h);
+  const extra = preferredHistoricoPeerIds(h).filter((id) => !basePool.includes(id));
+  const mergedIds = [...new Set([...extra, ...basePool])];
   const byId = new Map(h.chartCatalog.map((c) => [c.peer_id, c]));
-  return ids.map((id) => byId.get(id)).filter((c): c is ChartCatalogRow => c != null);
+  return mergedIds.map((id) => byId.get(id)).filter((c): c is ChartCatalogRow => c != null);
 }
 
 export function applyPeerToggle(

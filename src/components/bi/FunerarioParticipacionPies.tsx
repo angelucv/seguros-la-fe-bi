@@ -333,16 +333,18 @@ export function FunerarioParticipacionPies({
   moneda: 'bs' | 'usd';
 }) {
   const years = data.years.length ? data.years : [2022, 2023, 2024];
+  const yearsDesc = useMemo(() => [...years].sort((a, b) => b - a), [years]);
 
   return (
     <section className="rounded-xl border border-[#7823BD]/15 bg-[#FBF9F9] p-4 shadow-sm">
       <h3 className="text-base font-bold text-[#7823BD]">Participación de mercado por año (ramo funerario)</h3>
       <p className="mt-1 text-xs text-slate-600">
         Top 3 por prima; <strong className="text-[#7823BD]">{BRAND_DISPLAY_NAME}</strong> resaltada (borde dorado). Resto
-        del mercado agrupado. USD: tipo BCV de cierre de año.
+        del mercado agrupado. USD: tipo BCV de cierre de año. Orden de tarjetas: año más reciente primero. Cifras según
+        información publicada en el <strong>anuario</strong> estadístico (SUDEASEG).
       </p>
       <div className="mt-4 grid gap-4 md:grid-cols-3">
-        {years.map((y) => (
+        {yearsDesc.map((y) => (
           <YearPie
             key={y}
             year={y}

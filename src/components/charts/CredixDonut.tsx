@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Cell, Pie, PieChart, ResponsiveContainer, Tooltip } from 'recharts';
 import { BRAND_DISPLAY_NAME, COLOR_BRAND_PRIMARY } from '@/lib/bi/config';
+import { useCompactViewport } from '../../lib/useCompactViewport';
 
 export type CredixDonutSlice = {
   name: string;
@@ -136,6 +137,11 @@ export function CredixDonut({
   }, [data.length, dataSig, animKey]);
 
   const pieKey = `${animKey}-${dataSig.length}-${dataSig.slice(0, 120)}`;
+  const compact = useCompactViewport();
+  const donutValueTotal = useMemo(
+    () => data.reduce((acc, x) => acc + Number(x.value), 0),
+    [data]
+  );
 
   return (
     <div
@@ -152,7 +158,9 @@ export function CredixDonut({
         />
       )}
       <div className="mt-4 rounded-xl bg-white/95 p-2 shadow-inner">
-        <div className="donut-chart-enter h-[min(420px,70vw)] w-full min-h-[320px]">
+        <div
+          className={`donut-chart-enter w-full ${compact ? 'min-h-[240px] h-[min(300px,72vw)]' : 'min-h-[320px] h-[min(420px,70vw)]'}`}
+        >
           {!data.length && (
             <div className="flex h-full min-h-[280px] items-center justify-center text-sm text-slate-400">
               Sin datos de participación
@@ -160,7 +168,7 @@ export function CredixDonut({
           )}
           {data.length > 0 && paintReady && (
             <ResponsiveContainer width="100%" height="100%">
-              <PieChart margin={{ top: 16, right: 16, bottom: 16, left: 16 }}>
+              <PieChart margin={{ top: 8, right: 8, bottom: 8, left: 8 }}>
                 <Pie
                   key={pieKey}
                   data={data}
@@ -168,8 +176,8 @@ export function CredixDonut({
                   nameKey="name"
                   cx="50%"
                   cy="50%"
-                  innerRadius="50%"
-                  outerRadius="78%"
+                  innerRadius={compact ? '52%' : '50%'}
+                  outerRadius={compact ? '82%' : '78%'}
                   paddingAngle={3}
                   startAngle={88}
                   endAngle={-272}
@@ -177,8 +185,8 @@ export function CredixDonut({
                   animationDuration={2800}
                   animationEasing="ease-out"
                   isAnimationActive
-                  label={LabelConContraste}
-                  labelLine={{ stroke: '#64748b', strokeWidth: 1.2 }}
+                  label={compact ? false : LabelConContraste}
+                  labelLine={compact ? false : { stroke: '#64748b', strokeWidth: 1.2 }}
                 >
                   {data.map((entry, i) => (
                     <Cell
@@ -212,6 +220,35 @@ export function CredixDonut({
             </div>
           )}
         </div>
+        {compact && data.length > 0 ? (
+          <ul className="mt-3 space-y-2 border-t border-slate-100 px-2 pb-2 pt-3 text-left text-[11px] leading-snug text-slate-800">
+            {data.map((d, i) => {
+              const row = d as CredixDonutSlice & { fill: string };
+              const pct =
+                donutValueTotal > 0
+                  ? ((Number(row.value) / donutValueTotal) * 100).toFixed(1).replace('.', ',')
+                  : '—';
+              const short = String(row.name).split(',')[0]?.trim() ?? row.name;
+              const hl = Boolean(row.highlight);
+              return (
+                <li
+                  key={`${row.name}-${i}`}
+                  className="flex items-baseline justify-between gap-2 border-b border-slate-50 pb-1.5 last:border-0"
+                >
+                  <span className={`min-w-0 flex-1 ${hl ? 'font-bold text-[#4C1D95]' : 'font-medium'}`}>
+                    <span
+                      className="mr-2 inline-block h-2.5 w-2.5 shrink-0 rounded-sm align-middle"
+                      style={{ backgroundColor: row.fill }}
+                      aria-hidden
+                    />
+                    {short}
+                  </span>
+                  <span className="shrink-0 font-mono tabular-nums text-slate-600">{pct} %</span>
+                </li>
+              );
+            })}
+          </ul>
+        ) : null}
       </div>
     </div>
   );
