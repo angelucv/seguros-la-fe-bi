@@ -15,6 +15,7 @@ import {
   mergeTipoCambio,
   primasAcumuladasAlInicioMes,
   serieMensualMillonesUsd,
+  variacionInteranualDiciembre,
   ytdMillonesUsdDesdeSerieMensual,
   agregarUsdMensual,
 } from './fxEngine';
@@ -25,7 +26,6 @@ import {
   seriePeers,
   tablaRankingEnFecha,
   ultimoPeriodoEnAno,
-  variacionInteranualDiciembre,
 } from './primaEngine';
 import { etiquetaBarraCorta, etiquetaDisplay } from './empresa';
 import {
@@ -444,7 +444,7 @@ export function buildHistoricoPayload(ds: LoadedDataset, corte?: string) {
   const sumPct = boletinRows.reduce((s, r) => s + (r.pct ?? 0), 0);
   const nPct = boletinRows.filter((r) => r.pct != null).length;
 
-  const varRows = variacionInteranualDiciembre(primas, peerIds);
+  const varRows = variacionInteranualDiciembre(primas, peerIds, bcv);
   const periodsVar = [...new Set(varRows.map((v) => v.periodo))].sort();
   const varPivot: { peer_id: string; label: string; values: Record<string, number> }[] = [];
   for (const pid of peerIds) {

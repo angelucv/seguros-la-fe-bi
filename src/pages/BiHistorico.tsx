@@ -39,7 +39,7 @@ function HistoricoYoyMovil({
       {marca ? (
         <div className="rounded-2xl border-2 border-[#7823BD]/40 bg-gradient-to-br from-[#FFC857]/30 via-white to-violet-50/50 p-4 shadow-lg ring-1 ring-[#7823BD]/15">
           <p className="text-center text-[10px] font-bold uppercase tracking-[0.14em] text-[#7823BD]">{BRAND_DISPLAY_NAME}</p>
-          <p className="mt-1 text-center text-[11px] text-slate-500">Variación YoY (dic. vs dic.) · %</p>
+          <p className="mt-1 text-center text-[11px] text-slate-500">YoY dic. vs dic. · % sobre primas en USD (TC BCV diciembre de cada año)</p>
           <dl className="mt-3 space-y-2">
             {cols.map((p) => (
               <div
@@ -192,15 +192,16 @@ export function BiHistorico() {
         <ExecLead
           shortMobile={
             <>
-              Último cierre, serie mensual de <strong>primas</strong> y <strong>participación</strong>, y variación anual.
-              USD con <strong>BCV</strong> mensual.
+              Último cierre, <strong>primas</strong> y <strong>participación</strong> mensual; YoY dic. en USD (TC BCV de cada
+              diciembre).
             </>
           }
         >
           <p className="text-sm leading-relaxed text-slate-600">
             KPIs del último cierre publicado, evolución mensual de <strong>primas netas del mes</strong> y de{' '}
-            <strong>participación de mercado</strong>, y variación interanual (diciembre vs diciembre). Los importes en USD
-            aplican el <strong>tipo de cambio oficial BCV</strong> de cada mes.
+            <strong>participación de mercado</strong>, y variación interanual (diciembre vs diciembre) sobre primas expresadas en
+            USD con el <strong>tipo BCV de diciembre de cada año</strong> (comparación real, no en Bs. nominales). Los gráficos en
+            USD aplican el <strong>tipo de cambio oficial BCV</strong> de cada mes.
           </p>
         </ExecLead>
         <label className="flex max-w-xl cursor-pointer items-start gap-2 rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-700 shadow-sm">
@@ -625,15 +626,17 @@ export function BiHistorico() {
         ) : (
           <>
             <p className="text-[11px] leading-snug text-slate-500 md:hidden">
-              % entre cierres de diciembre · primas miles Bs. · períodos desde dic. <strong>2022</strong> · SUDEASEG.
+              % YoY sobre primas en USD (TC BCV dic. de cada año) · períodos desde dic. <strong>2022</strong> · SUDEASEG.
             </p>
             <HistoricoYoyMovil rows={data.varPivot} cols={yoyPeriodCols} />
             <div className="hidden md:block">
               <div className="bi-table-scroll rounded-xl border border-slate-200">
                 <table className="w-max min-w-[480px] max-w-none text-left text-sm">
                   <caption className="caption-bottom px-2 pb-2 pt-3 text-left text-xs text-slate-500">
-                    Variación porcentual entre cierres de diciembre consecutivos · primas en miles de Bs. nominales · solo
-                    períodos con cierre en diciembre de <strong>2022</strong> o posterior. Fuente: SUDEASEG.
+                    Variación porcentual entre acumulados de diciembre consecutivos: cada año se valora en millones USD con el
+                    tipo BCV oficial de <strong>diciembre de ese año</strong> (VES por USD); el % es el cambio año contra año en
+                    esos términos (no en bolívares nominales). Solo períodos con cierre en diciembre de <strong>2022</strong> o
+                    posterior. Fuente primas: SUDEASEG · tipo de cambio: BCV.
                   </caption>
                   <thead className="bg-slate-100">
                     <tr>

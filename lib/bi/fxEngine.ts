@@ -122,3 +122,40 @@ export function primasAcumuladasAlInicioMes(df: PrimaRow[], peerId: string, fech
   if (prevDec) return prevDec.primas_miles_bs;
   return 0;
 }
+
+/**
+ * Variación interanual entre acumulados de diciembre consecutivos, en términos reales:
+ * cada cierre se convierte a millones USD con el tipo BCV oficial de **diciembre de ese año** (VES por USD),
+ * y el % es (USD_b − USD_a) / USD_a. Así la comparación no queda distorsionada por la inflación en Bs. nominales.
+ */
+export function variacionInteranualDiciembre(df: PrimaRow[], peerIds: string[], bcv: BcvRow[]) {
+  const d = df.filter((r) => r.month === 12);
+  const byPeerYear = new Map<string, Map<number, number>>();
+  for (const r of d) {
+    if (!byPeerYear.has(r.peer_id)) byPeerYear.set(r.peer_id, new Map());
+    byPeerYear.get(r.peer_id)!.set(r.year, r.primas_miles_bs);
+  }
+  const yearsSet = new Set<number>();
+  for (const m of byPeerYear.values()) for (const y of m.keys()) yearsSet.add(y);
+  const years = [...yearsSet].sort((a, b) => a - b);
+  const rows: { peer_id: string; periodo: string; variacion_pct: number }[] = [];
+  for (let i = 1; i < years.length; i++) {
+    const a = years[i - 1]!;
+    const b = years[i]!;
+    const label = `${a}->${b}`;
+    const vesA = vesPorUsdDiciembre(bcv, a);
+    const vesB = vesPorUsdDiciembre(bcv, b);
+    for (const pid of peerIds) {
+      const map = byPeerYear.get(pid);
+      if (!map) continue;
+      const va = map.get(a);
+      const vb = map.get(b);
+      if (va === undefined || vb === undefined) continue;
+      const usdA = primasMilesBsToUsdMillones(va, vesA);
+      const usdB = primasMilesBsToUsdMillones(vb, vesB);
+      if (!Number.isFinite(usdA) || !Number.isFinite(usdB) || usdA === 0) continue;
+      rows.push({ peer_id: pid, periodo: label, variacion_pct: (100 * (usdB - usdA)) / usdA });
+    }
+  }
+  return rows;
+}

@@ -122,33 +122,6 @@ export function acumuladoAPrimasMensuales(df: PrimaRow[]): MensualRow[] {
   return out;
 }
 
-export function variacionInteranualDiciembre(df: PrimaRow[], peerIds: string[]) {
-  const d = df.filter((r) => r.month === 12);
-  const byPeerYear = new Map<string, Map<number, number>>();
-  for (const r of d) {
-    if (!byPeerYear.has(r.peer_id)) byPeerYear.set(r.peer_id, new Map());
-    byPeerYear.get(r.peer_id)!.set(r.year, r.primas_miles_bs);
-  }
-  const yearsSet = new Set<number>();
-  for (const m of byPeerYear.values()) for (const y of m.keys()) yearsSet.add(y);
-  const years = [...yearsSet].sort((a, b) => a - b);
-  const rows: { peer_id: string; periodo: string; variacion_pct: number }[] = [];
-  for (let i = 1; i < years.length; i++) {
-    const a = years[i - 1]!;
-    const b = years[i]!;
-    const label = `${a}->${b}`;
-    for (const pid of peerIds) {
-      const map = byPeerYear.get(pid);
-      if (!map) continue;
-      const va = map.get(a);
-      const vb = map.get(b);
-      if (va === undefined || vb === undefined || va === 0) continue;
-      rows.push({ peer_id: pid, periodo: label, variacion_pct: (100 * (vb - va)) / va });
-    }
-  }
-  return rows;
-}
-
 export function mapPrimasFromCsv(records: Record<string, string>[]): PrimaRow[] {
   const out: PrimaRow[] = [];
   for (const r of records) {
