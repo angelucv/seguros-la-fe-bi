@@ -8,6 +8,7 @@ import { BiHistorico } from './pages/BiHistorico';
 import { BiFunerario } from './pages/BiFunerario';
 import { SegurosLaFeMark } from './components/brand/SegurosLaFeMark';
 import { FuentesInformacion } from './components/bi/FuentesInformacion';
+import { AppContentFooter } from './components/layout/ContactAttribution';
 
 type Tab = 'home' | 'sector' | 'historico' | 'funerario' | 'fuentes';
 
@@ -44,7 +45,7 @@ export default function App() {
         <header className="flex min-h-14 shrink-0 items-center gap-3 border-b border-[#7823BD]/10 bg-white px-3 pb-2 pt-[max(0.5rem,env(safe-area-inset-top,0px))] shadow-sm sm:min-h-16 sm:px-5 sm:pb-0">
           <button
             type="button"
-            className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-[#7823BD]/15 bg-[#F0F4FB] text-[#7823BD] lg:hidden"
+            className="flex h-11 w-11 shrink-0 touch-manipulation items-center justify-center rounded-xl border border-[#7823BD]/15 bg-[#F0F4FB] text-[#7823BD] outline-none focus-visible:ring-2 focus-visible:ring-[#7823BD]/45 lg:h-10 lg:w-10 lg:hidden"
             onClick={() => setMobileOpen((o) => !o)}
             aria-expanded={mobileOpen}
           >
@@ -63,16 +64,19 @@ export default function App() {
         </header>
 
         <div className="min-h-0 min-w-0 flex-1 overflow-y-auto overflow-x-hidden overscroll-y-contain px-4 pb-[max(1rem,env(safe-area-inset-bottom,0px))] pt-4 sm:px-6 sm:pb-6 sm:pt-6">
-          <div className="mx-auto min-w-0 max-w-6xl">
-            {activeTab === 'home' && (
-              <BiHome onNavigateTab={(t: BiHomeNavigateTab) => setActiveTab(t)} />
-            )}
-            {activeTab === 'sector' && (
-              <BiSector onOpenFunerario={() => setActiveTab('funerario')} />
-            )}
-            {activeTab === 'historico' && <BiHistorico />}
-            {activeTab === 'funerario' && <BiFunerario />}
-            {activeTab === 'fuentes' && <FuentesInformacion />}
+          <div className="mx-auto flex min-h-0 min-w-0 max-w-6xl flex-col">
+            <div className="min-h-0 flex-1">
+              {activeTab === 'home' && (
+                <BiHome onNavigateTab={(t: BiHomeNavigateTab) => setActiveTab(t)} />
+              )}
+              {activeTab === 'sector' && (
+                <BiSector onOpenFunerario={() => setActiveTab('funerario')} />
+              )}
+              {activeTab === 'historico' && <BiHistorico />}
+              {activeTab === 'funerario' && <BiFunerario />}
+              {activeTab === 'fuentes' && <FuentesInformacion />}
+            </div>
+            {activeTab !== 'fuentes' && <AppContentFooter />}
           </div>
         </div>
       </main>

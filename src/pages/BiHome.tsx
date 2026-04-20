@@ -169,7 +169,7 @@ function AccessCard({
     <button
       type="button"
       onClick={onClick}
-      className="flex h-full w-full flex-col rounded-2xl border border-[#7823BD]/15 bg-gradient-to-b from-white to-[#F0F4FB]/80 p-3.5 text-left shadow-sm transition active:scale-[0.99] hover:border-[#7823BD]/35 hover:shadow-md sm:p-4"
+      className="flex h-full w-full flex-col rounded-2xl border border-[#7823BD]/15 bg-gradient-to-b from-white to-[#F0F4FB]/80 p-3.5 text-left shadow-sm outline-none transition active:scale-[0.99] hover:border-[#7823BD]/35 hover:shadow-md focus-visible:ring-2 focus-visible:ring-[#7823BD]/35 sm:p-4"
     >
       <span className="flex items-center gap-2 text-[#7823BD]">
         <span className="rounded-lg bg-[#7823BD]/10 p-2 text-[#7823BD]">{icon}</span>

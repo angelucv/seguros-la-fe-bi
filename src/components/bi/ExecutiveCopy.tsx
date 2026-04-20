@@ -22,7 +22,7 @@ export function ExecLead({
 /** Franja discreta solo móvil: contexto de la pantalla para lectura rápida. */
 export function ExecMobileStrip({ children }: { children: ReactNode }) {
   return (
-    <div className="mb-4 rounded-xl border border-[#7823BD]/20 bg-gradient-to-r from-[#7823BD]/8 to-violet-50/50 px-3 py-2.5 text-center text-[12px] font-medium leading-snug text-slate-800 shadow-sm md:hidden">
+    <div className="mb-4 rounded-xl border border-[#7823BD]/20 bg-gradient-to-r from-[#7823BD]/8 to-violet-50/50 px-3 py-2.5 text-center text-[12px] font-medium leading-snug text-slate-800 text-balance shadow-sm md:hidden">
       {children}
     </div>
   );

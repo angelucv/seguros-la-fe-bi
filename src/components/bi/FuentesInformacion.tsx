@@ -1,4 +1,5 @@
-import { BookOpen, Building2, LineChart, Mail } from 'lucide-react';
+import { BookOpen, Building2, LineChart } from 'lucide-react';
+import { FuentesContactCard } from '../layout/ContactAttribution';
 
 /**
  * Documentación de fuentes para la dirección (sin listado técnico de archivos del servidor).
@@ -71,21 +72,7 @@ export function FuentesInformacion() {
         </p>
       </section>
 
-      <footer className="rounded-2xl border border-[#7823BD]/15 bg-gradient-to-br from-[#7823BD]/8 to-violet-50/50 p-5 sm:p-6">
-        <p className="flex items-start gap-2 text-sm text-slate-700">
-          <Mail className="mt-0.5 h-4 w-4 shrink-0 text-[#7823BD]" aria-hidden />
-          <span>
-            <span className="font-semibold text-[#7823BD]">Contacto</span>
-            <br />
-            <a
-              href="mailto:acolmenares@seguroslafe.com"
-              className="text-[#7823BD] underline decoration-[#7823BD]/30 underline-offset-2 hover:decoration-[#7823BD]"
-            >
-              acolmenares@seguroslafe.com
-            </a>
-          </span>
-        </p>
-      </footer>
+      <FuentesContactCard />
     </div>
   );
 }

@@ -8,6 +8,7 @@ import {
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { SegurosLaFeMark } from '../brand/SegurosLaFeMark';
+import { CONTACT_ATTRIBUTION, CONTACT_EMAIL, CONTACT_MAILTO } from '@/lib/contactAttribution';
 
 interface SidebarProps {
   activeTab: string;
@@ -51,7 +52,7 @@ export function Sidebar({ activeTab, setActiveTab, mobileOpen = false, onNavigat
             type="button"
             onClick={() => select(item.id)}
             className={cn(
-              'flex w-full items-center justify-between rounded-lg px-3 py-2.5 text-left transition-colors',
+              'flex min-h-[44px] w-full items-center justify-between rounded-lg px-3 py-2.5 text-left outline-none transition-colors focus-visible:ring-2 focus-visible:ring-white/50 lg:min-h-0',
               activeTab === item.id
                 ? 'bg-white text-[#7823BD] shadow-sm'
                 : 'text-[#b8c0e0] hover:bg-white/5 hover:text-white'
@@ -65,7 +66,7 @@ export function Sidebar({ activeTab, setActiveTab, mobileOpen = false, onNavigat
           </button>
         ))}
       </nav>
-      <div className="space-y-3 border-t border-white/10 p-4">
+      <div className="space-y-3 border-t border-white/10 p-4 pb-[max(1rem,env(safe-area-inset-bottom,0px))]">
         <div className="text-[10px] leading-relaxed text-[#8892c4]">
           <p className="font-semibold text-[#a8b0d0]">Fuentes de la información</p>
           <ul className="mt-1.5 list-disc space-y-1 pl-4 marker:text-[#6b7399]">
@@ -77,15 +78,15 @@ export function Sidebar({ activeTab, setActiveTab, mobileOpen = false, onNavigat
             </li>
           </ul>
         </div>
-        <p className="text-[10px] leading-relaxed text-[#9aa3cc]">
-          <span className="font-semibold text-[#c4c9e8]">Contacto:</span>{' '}
+        <div className="text-[10px] leading-relaxed text-[#9aa3cc]">
+          <p className="text-[#c4c9e8]">{CONTACT_ATTRIBUTION}</p>
           <a
-            href="mailto:acolmenares@seguroslafe.com"
-            className="break-all text-[#FFC857] underline-offset-2 hover:underline"
+            href={CONTACT_MAILTO}
+            className="mt-1.5 inline-block min-h-[44px] break-all py-2 text-[#FFC857] underline-offset-2 hover:underline sm:min-h-0 sm:py-0"
           >
-            acolmenares@seguroslafe.com
+            {CONTACT_EMAIL}
           </a>
-        </p>
+        </div>
       </div>
     </div>
   );

@@ -258,31 +258,31 @@ export function BiHistorico() {
         >
           <a
             href="#historico-primas"
-            className="shrink-0 snap-start whitespace-nowrap rounded-full border border-[#7823BD]/20 bg-[#F0F4FB] px-3 py-1.5 underline-offset-2 hover:border-[#7823BD]/40 hover:underline md:rounded-none md:border-0 md:bg-transparent md:px-0 md:py-0"
+            className="inline-flex min-h-[40px] shrink-0 snap-start items-center whitespace-nowrap rounded-full border border-[#7823BD]/20 bg-[#F0F4FB] px-3 py-2 text-[11px] underline-offset-2 hover:border-[#7823BD]/40 hover:underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#7823BD]/40 md:min-h-0 md:rounded-none md:border-0 md:bg-transparent md:px-0 md:py-0 md:text-xs"
           >
             Primas del mes
           </a>
           <a
             href="#historico-resumen"
-            className="shrink-0 snap-start whitespace-nowrap rounded-full border border-[#7823BD]/20 bg-[#F0F4FB] px-3 py-1.5 underline-offset-2 hover:border-[#7823BD]/40 hover:underline md:rounded-none md:border-0 md:bg-transparent md:px-0 md:py-0"
+            className="inline-flex min-h-[40px] shrink-0 snap-start items-center whitespace-nowrap rounded-full border border-[#7823BD]/20 bg-[#F0F4FB] px-3 py-2 text-[11px] underline-offset-2 hover:border-[#7823BD]/40 hover:underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#7823BD]/40 md:min-h-0 md:rounded-none md:border-0 md:bg-transparent md:px-0 md:py-0 md:text-xs"
           >
             Resumen cierre
           </a>
           <a
             href="#historico-participacion"
-            className="shrink-0 snap-start whitespace-nowrap rounded-full border border-[#7823BD]/20 bg-[#F0F4FB] px-3 py-1.5 underline-offset-2 hover:border-[#7823BD]/40 hover:underline md:rounded-none md:border-0 md:bg-transparent md:px-0 md:py-0"
+            className="inline-flex min-h-[40px] shrink-0 snap-start items-center whitespace-nowrap rounded-full border border-[#7823BD]/20 bg-[#F0F4FB] px-3 py-2 text-[11px] underline-offset-2 hover:border-[#7823BD]/40 hover:underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#7823BD]/40 md:min-h-0 md:rounded-none md:border-0 md:bg-transparent md:px-0 md:py-0 md:text-xs"
           >
             Participación
           </a>
           <a
             href="#historico-yoy"
-            className="shrink-0 snap-start whitespace-nowrap rounded-full border border-[#7823BD]/20 bg-[#F0F4FB] px-3 py-1.5 underline-offset-2 hover:border-[#7823BD]/40 hover:underline md:rounded-none md:border-0 md:bg-transparent md:px-0 md:py-0"
+            className="inline-flex min-h-[40px] shrink-0 snap-start items-center whitespace-nowrap rounded-full border border-[#7823BD]/20 bg-[#F0F4FB] px-3 py-2 text-[11px] underline-offset-2 hover:border-[#7823BD]/40 hover:underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#7823BD]/40 md:min-h-0 md:rounded-none md:border-0 md:bg-transparent md:px-0 md:py-0 md:text-xs"
           >
             Variación YoY
           </a>
           <a
             href="#historico-fuentes"
-            className="shrink-0 snap-start whitespace-nowrap rounded-full border border-[#7823BD]/20 bg-[#F0F4FB] px-3 py-1.5 underline-offset-2 hover:border-[#7823BD]/40 hover:underline md:rounded-none md:border-0 md:bg-transparent md:px-0 md:py-0"
+            className="inline-flex min-h-[40px] shrink-0 snap-start items-center whitespace-nowrap rounded-full border border-[#7823BD]/20 bg-[#F0F4FB] px-3 py-2 text-[11px] underline-offset-2 hover:border-[#7823BD]/40 hover:underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#7823BD]/40 md:min-h-0 md:rounded-none md:border-0 md:bg-transparent md:px-0 md:py-0 md:text-xs"
           >
             Fuentes
           </a>

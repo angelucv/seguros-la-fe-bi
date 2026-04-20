@@ -420,7 +420,7 @@ function SectorQuickNav({ onOpenFunerario }: { onOpenFunerario?: () => void }) {
             key={item.id}
             type="button"
             onClick={() => scrollToSectorSection(item.id)}
-            className="rounded-full border border-[#7823BD]/20 bg-[#F0F4FB] px-3 py-1.5 text-left text-xs font-semibold text-[#7823BD] transition hover:border-[#7823BD]/40 hover:bg-white sm:text-center sm:text-sm"
+            className="min-h-[40px] touch-manipulation rounded-full border border-[#7823BD]/20 bg-[#F0F4FB] px-3 py-1.5 text-left text-xs font-semibold text-[#7823BD] outline-none transition hover:border-[#7823BD]/40 hover:bg-white focus-visible:ring-2 focus-visible:ring-[#7823BD]/35 sm:min-h-0 sm:text-center sm:text-sm"
           >
             {item.label}
           </button>
@@ -429,7 +429,7 @@ function SectorQuickNav({ onOpenFunerario }: { onOpenFunerario?: () => void }) {
           <button
             type="button"
             onClick={onOpenFunerario}
-            className="rounded-full border border-dashed border-[#7823BD]/45 bg-white px-3 py-1.5 text-left text-xs font-semibold text-[#7823BD] transition hover:border-[#7823BD]/60 hover:bg-[#F0F4FB] sm:text-center sm:text-sm"
+            className="min-h-[40px] touch-manipulation rounded-full border border-dashed border-[#7823BD]/45 bg-white px-3 py-1.5 text-left text-xs font-semibold text-[#7823BD] outline-none transition hover:border-[#7823BD]/60 hover:bg-[#F0F4FB] focus-visible:ring-2 focus-visible:ring-[#7823BD]/35 sm:min-h-0 sm:text-center sm:text-sm"
           >
             BI Funerario (otra pestaña)
           </button>
