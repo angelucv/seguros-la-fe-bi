@@ -18,6 +18,7 @@ import {
   seriesNullGapSummary,
   type HistApi,
 } from '@/src/lib/biHistoricoHelpers';
+import { ExecLead, ExecMobileStrip } from '../components/bi/ExecutiveCopy';
 
 function fmtFechaGeneracion(iso: string): string {
   if (!iso) return '—';
@@ -128,14 +129,26 @@ export function BiHistorico() {
   const csvPrimasTitulo = useUsd ? 'Primas netas del mes (millones USD)' : 'Primas netas del mes (miles Bs.)';
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-6 md:space-y-8">
+      <ExecMobileStrip>
+        Evolución mensual de primas y participación · último cierre {data.ult.slice(0, 10)}
+      </ExecMobileStrip>
       <header className="space-y-2">
-        <h2 className="text-lg font-semibold text-[#7823BD]">BI Histórico</h2>
-        <p className="text-sm leading-relaxed text-slate-600">
-          KPIs del último cierre publicado, evolución mensual de <strong>primas netas del mes</strong> y de{' '}
-          <strong>participación de mercado</strong>, y variación interanual (diciembre vs diciembre). Los importes en USD
-          aplican el <strong>tipo de cambio oficial BCV</strong> de cada mes.
-        </p>
+        <h2 className="text-base font-semibold text-[#7823BD] sm:text-lg">BI Histórico</h2>
+        <ExecLead
+          shortMobile={
+            <>
+              Último cierre, serie mensual de <strong>primas</strong> y <strong>participación</strong>, y variación anual.
+              USD con <strong>BCV</strong> mensual.
+            </>
+          }
+        >
+          <p className="text-sm leading-relaxed text-slate-600">
+            KPIs del último cierre publicado, evolución mensual de <strong>primas netas del mes</strong> y de{' '}
+            <strong>participación de mercado</strong>, y variación interanual (diciembre vs diciembre). Los importes en USD
+            aplican el <strong>tipo de cambio oficial BCV</strong> de cada mes.
+          </p>
+        </ExecLead>
         <label className="flex max-w-xl cursor-pointer items-start gap-2 rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-700 shadow-sm">
           <input
             type="checkbox"
@@ -149,51 +162,73 @@ export function BiHistorico() {
           />
           <span>
             <strong className="text-[#7823BD]">Misma selección en primas y participación</strong>
-            <span className="block text-xs font-normal text-slate-500">
+            <span className="mt-0.5 hidden text-xs font-normal text-slate-500 md:block">
               Al activarla, los chips de participación siguen a los de primas (y viceversa si cambia participación con
               sync activo).
+            </span>
+            <span className="mt-0.5 block text-xs font-normal text-slate-500 md:hidden">
+              Primas y participación comparten la misma selección de empresas.
             </span>
           </span>
         </label>
         <p className="text-xs text-slate-500">
-          Datos hasta el cierre <strong>{data.ult.slice(0, 10)}</strong> · Vista generada{' '}
-          <strong>{fmtFechaGeneracion(data.generatedAt)}</strong>
-          {data.datasetMeta ? (
-            <>
-              {' '}
-              · Carpeta de datos <code className="rounded bg-slate-100 px-1">{data.datasetMeta.dataDirBase}</code> · Filas
-              CSV primas: <strong>{data.datasetMeta.primasRowCount}</strong>
-              {data.datasetMeta.periodoPrimas ? (
-                <>
-                  {' '}
-                  · Serie primas en CSV:{' '}
-                  <strong>
-                    {data.datasetMeta.periodoPrimas.minFecha.slice(0, 7)} →{' '}
-                    {data.datasetMeta.periodoPrimas.maxFecha.slice(0, 7)}
-                  </strong>
-                </>
-              ) : null}
-            </>
-          ) : null}
+          <span className="md:hidden">
+            Cierre <strong>{data.ult.slice(0, 10)}</strong> · Vista <strong>{fmtFechaGeneracion(data.generatedAt)}</strong>
+          </span>
+          <span className="hidden md:inline">
+            Datos hasta el cierre <strong>{data.ult.slice(0, 10)}</strong> · Vista generada{' '}
+            <strong>{fmtFechaGeneracion(data.generatedAt)}</strong>
+            {data.datasetMeta ? (
+              <>
+                {' '}
+                · Carpeta de datos <code className="rounded bg-slate-100 px-1">{data.datasetMeta.dataDirBase}</code> · Filas
+                CSV primas: <strong>{data.datasetMeta.primasRowCount}</strong>
+                {data.datasetMeta.periodoPrimas ? (
+                  <>
+                    {' '}
+                    · Serie primas en CSV:{' '}
+                    <strong>
+                      {data.datasetMeta.periodoPrimas.minFecha.slice(0, 7)} →{' '}
+                      {data.datasetMeta.periodoPrimas.maxFecha.slice(0, 7)}
+                    </strong>
+                  </>
+                ) : null}
+              </>
+            ) : null}
+          </span>
         </p>
-        <nav className="flex flex-wrap gap-x-4 gap-y-1 text-xs font-medium text-[#7823BD]">
-          <a href="#historico-primas" className="underline-offset-2 hover:underline">
+        <nav
+          className="-mx-1 flex max-w-full snap-x snap-mandatory gap-x-3 overflow-x-auto pb-1 text-xs font-medium text-[#7823BD] [-webkit-overflow-scrolling:touch] md:mx-0 md:flex-wrap md:gap-x-4 md:gap-y-1 md:overflow-visible md:pb-0"
+          aria-label="Secciones del histórico"
+        >
+          <a
+            href="#historico-primas"
+            className="shrink-0 snap-start whitespace-nowrap rounded-full border border-[#7823BD]/20 bg-[#F0F4FB] px-3 py-1.5 underline-offset-2 hover:border-[#7823BD]/40 hover:underline md:rounded-none md:border-0 md:bg-transparent md:px-0 md:py-0"
+          >
             Primas del mes
           </a>
-          <span className="text-slate-300">·</span>
-          <a href="#historico-resumen" className="underline-offset-2 hover:underline">
-            Resumen último cierre
+          <a
+            href="#historico-resumen"
+            className="shrink-0 snap-start whitespace-nowrap rounded-full border border-[#7823BD]/20 bg-[#F0F4FB] px-3 py-1.5 underline-offset-2 hover:border-[#7823BD]/40 hover:underline md:rounded-none md:border-0 md:bg-transparent md:px-0 md:py-0"
+          >
+            Resumen cierre
           </a>
-          <span className="text-slate-300">·</span>
-          <a href="#historico-participacion" className="underline-offset-2 hover:underline">
+          <a
+            href="#historico-participacion"
+            className="shrink-0 snap-start whitespace-nowrap rounded-full border border-[#7823BD]/20 bg-[#F0F4FB] px-3 py-1.5 underline-offset-2 hover:border-[#7823BD]/40 hover:underline md:rounded-none md:border-0 md:bg-transparent md:px-0 md:py-0"
+          >
             Participación
           </a>
-          <span className="text-slate-300">·</span>
-          <a href="#historico-yoy" className="underline-offset-2 hover:underline">
+          <a
+            href="#historico-yoy"
+            className="shrink-0 snap-start whitespace-nowrap rounded-full border border-[#7823BD]/20 bg-[#F0F4FB] px-3 py-1.5 underline-offset-2 hover:border-[#7823BD]/40 hover:underline md:rounded-none md:border-0 md:bg-transparent md:px-0 md:py-0"
+          >
             Variación YoY
           </a>
-          <span className="text-slate-300">·</span>
-          <a href="#historico-fuentes" className="underline-offset-2 hover:underline">
+          <a
+            href="#historico-fuentes"
+            className="shrink-0 snap-start whitespace-nowrap rounded-full border border-[#7823BD]/20 bg-[#F0F4FB] px-3 py-1.5 underline-offset-2 hover:border-[#7823BD]/40 hover:underline md:rounded-none md:border-0 md:bg-transparent md:px-0 md:py-0"
+          >
             Fuentes
           </a>
         </nav>

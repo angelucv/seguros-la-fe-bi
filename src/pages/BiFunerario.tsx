@@ -5,6 +5,7 @@ import { BRAND_DISPLAY_NAME, BRAND_PEER_ID } from '@/lib/bi/config';
 import { cn } from '@/lib/utils';
 import { FunerarioEvolutionChart } from '../components/bi/FunerarioEvolutionChart';
 import { FunerarioParticipacionPies } from '../components/bi/FunerarioParticipacionPies';
+import { ExecLead, ExecMobileStrip } from '../components/bi/ExecutiveCopy';
 
 type FunerarioRow = {
   ranking_funerario: number;
@@ -133,28 +134,53 @@ export function BiFunerario() {
   }
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-6 md:space-y-8">
+      <ExecMobileStrip>
+        Ramo funerario · Cuadro 5-A SUDEASEG · Bs. o USD (TC BCV diciembre)
+      </ExecMobileStrip>
       <header className="space-y-2">
-        <h2 className="text-lg font-semibold text-[#7823BD]">BI Funerario</h2>
-        <p className="text-sm leading-relaxed text-slate-600">
-          Primas netas cobradas en el ramo <strong>Funerarios</strong> (seguros de personas, seguro directo), según el{' '}
-          <strong>Cuadro 5-A</strong> de las publicaciones «Seguro en cifras» (SUDEASEG). Puede ver los importes en{' '}
-          <strong>miles de bolívares nominales</strong> o convertidos a <strong>dólares estadounidenses</strong> con el tipo de
-          cambio oficial del BCV al <strong>cierre de diciembre</strong> de cada año (misma serie que el resto del tablero). El
-          porcentaje no cambia al pasar a USD (es la participación sobre el total funerario del cuadro).
-        </p>
-        {tipo.length > 0 && (
-          <p className="text-xs text-slate-600">
-            <span className="font-medium text-slate-700">Tipo de cambio BCV (VES por USD, cierre dic.): </span>
-            {tipo
-              .filter((t) => years.includes(t.year))
-              .map((t) =>
-                t.ves_por_usd != null
-                  ? `${t.year}: ${new Intl.NumberFormat('es-VE', { maximumFractionDigits: 4 }).format(t.ves_por_usd)}`
-                  : `${t.year}: —`
-              )
-              .join(' · ')}
+        <h2 className="text-base font-semibold text-[#7823BD] sm:text-lg">BI Funerario</h2>
+        <ExecLead
+          shortMobile={
+            <>
+              Primas del ramo <strong>Funerarios</strong> (Cuadro 5-A, SUDEASEG). <strong>Bs.</strong> o <strong>USD</strong> con
+              BCV a cierre de diciembre. El % de participación es el mismo en ambas monedas.
+            </>
+          }
+        >
+          <p className="text-sm leading-relaxed text-slate-600">
+            Primas netas cobradas en el ramo <strong>Funerarios</strong> (seguros de personas, seguro directo), según el{' '}
+            <strong>Cuadro 5-A</strong> de las publicaciones «Seguro en cifras» (SUDEASEG). Puede ver los importes en{' '}
+            <strong>miles de bolívares nominales</strong> o convertidos a <strong>dólares estadounidenses</strong> con el tipo de
+            cambio oficial del BCV al <strong>cierre de diciembre</strong> de cada año (misma serie que el resto del tablero). El
+            porcentaje no cambia al pasar a USD (es la participación sobre el total funerario del cuadro).
           </p>
+        </ExecLead>
+        {tipo.length > 0 && (
+          <>
+            <p className="hidden text-xs text-slate-600 md:block">
+              <span className="font-medium text-slate-700">Tipo de cambio BCV (VES por USD, cierre dic.): </span>
+              {tipo
+                .filter((t) => years.includes(t.year))
+                .map((t) =>
+                  t.ves_por_usd != null
+                    ? `${t.year}: ${new Intl.NumberFormat('es-VE', { maximumFractionDigits: 4 }).format(t.ves_por_usd)}`
+                    : `${t.year}: —`
+                )
+                .join(' · ')}
+            </p>
+            <p className="text-xs text-slate-600 md:hidden">
+              <span className="font-medium text-slate-700">TC BCV (dic., VES/USD): </span>
+              {tipo
+                .filter((t) => years.includes(t.year))
+                .map((t) =>
+                  t.ves_por_usd != null
+                    ? `${t.year}: ${new Intl.NumberFormat('es-VE', { maximumFractionDigits: 2 }).format(t.ves_por_usd)}`
+                    : `${t.year}: —`
+                )
+                .join(' · ')}
+            </p>
+          </>
         )}
         {data.error ? (
           <p className="rounded-lg border border-amber-300 bg-amber-50 px-3 py-2 text-sm text-amber-950">{data.error}</p>

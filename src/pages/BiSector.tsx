@@ -7,6 +7,7 @@ import { PlotlyFigure } from '../components/charts/PlotlyFigure';
 import { LaFeDonut } from '../components/charts/LaFeDonut';
 import { LaFePrimasBars } from '../components/charts/LaFePrimasBars';
 import type { ResultadoPayload } from '../components/bi/ResultadoTecnicoSection';
+import { ExecLead, ExecMobileStrip } from '../components/bi/ExecutiveCopy';
 
 type SectorApi = {
   error?: string;
@@ -99,32 +100,62 @@ export function BiSector({ onOpenFunerario }: { onOpenFunerario?: () => void } =
     data.primasMensuales.mesesLabels.length > 0 && data.primasMensuales.series.length > 0;
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-6 md:space-y-8">
+      <ExecMobileStrip>
+        Vista sectorial · {BRAND_DISPLAY_NAME} vs mercado y grupo comparable
+      </ExecMobileStrip>
       <div
         id="bi-sectorial-intro"
-        className="rounded-2xl border border-[#7823BD]/10 bg-white p-5 shadow-sm sm:p-6"
+        className="rounded-2xl border border-[#7823BD]/10 bg-white p-4 shadow-sm sm:p-6"
       >
         <h2 className="text-base font-bold text-[#7823BD] sm:text-lg">BI Sectorial</h2>
-        <p className="mt-3 text-sm leading-relaxed text-slate-600">
-          Mercado asegurador y <strong>{BRAND_DISPLAY_NAME}</strong>: indicadores y tacómetros, participación en USD, primas
-          mensuales y comparativa con un conjunto de empresas de <strong>volumen parecido</strong>, además de tablas de detalle.
-          Use el menú rápido para desplazarse; el ramo funerario está en <strong>BI Funerario</strong> en el menú principal
-          {onOpenFunerario ? (
-            <>
-              {' '}
-              (<button
-                type="button"
-                onClick={onOpenFunerario}
-                className="font-semibold text-[#7823BD] underline decoration-[#7823BD]/40 underline-offset-2 hover:decoration-[#7823BD]"
-              >
-                abrir aquí
-              </button>
-              ).
-            </>
-          ) : (
-            '.'
-          )}
-        </p>
+        <div className="mt-3">
+          <ExecLead
+            shortMobile={
+              <>
+                Indicadores, participación, primas mensuales y comparativa con empresas de <strong>volumen parecido</strong>.
+                Funerario: menú <strong>BI Funerario</strong>
+                {onOpenFunerario ? (
+                  <>
+                    {' '}
+                    (
+                    <button
+                      type="button"
+                      onClick={onOpenFunerario}
+                      className="font-semibold text-[#7823BD] underline decoration-[#7823BD]/40 underline-offset-2 hover:decoration-[#7823BD]"
+                    >
+                      abrir
+                    </button>
+                    ).
+                  </>
+                ) : (
+                  '.'
+                )}
+              </>
+            }
+          >
+            <p className="text-sm leading-relaxed text-slate-600">
+              Mercado asegurador y <strong>{BRAND_DISPLAY_NAME}</strong>: indicadores y tacómetros, participación en USD, primas
+              mensuales y comparativa con un conjunto de empresas de <strong>volumen parecido</strong>, además de tablas de detalle.
+              Use el menú rápido para desplazarse; el ramo funerario está en <strong>BI Funerario</strong> en el menú principal
+              {onOpenFunerario ? (
+                <>
+                  {' '}
+                  (<button
+                    type="button"
+                    onClick={onOpenFunerario}
+                    className="font-semibold text-[#7823BD] underline decoration-[#7823BD]/40 underline-offset-2 hover:decoration-[#7823BD]"
+                  >
+                    abrir aquí
+                  </button>
+                  ).
+                </>
+              ) : (
+                '.'
+              )}
+            </p>
+          </ExecLead>
+        </div>
         <SectorDataMeta data={data} />
         <SectorQuickNav onOpenFunerario={onOpenFunerario} />
       </div>
@@ -149,10 +180,17 @@ export function BiSector({ onOpenFunerario }: { onOpenFunerario?: () => void } =
         </div>
         {data.tacometers.length > 0 && (
           <div className="mt-4 rounded-lg border border-slate-200 bg-white px-3 py-2.5 text-xs leading-relaxed text-slate-600 shadow-sm sm:text-sm">
-            <strong className="text-[#7823BD]">Leyenda tacómetros:</strong> el arco refleja el rango del indicador; la barra de
-            color es el valor de <strong>{BRAND_DISPLAY_NAME}</strong>; la marca de referencia en el arco es el{' '}
-            <strong>promedio del sector</strong> (mismo corte mensual que el recuadro «Corte de información» arriba). El
-            porcentaje grande en el centro corresponde a {BRAND_DISPLAY_NAME}.
+            <strong className="text-[#7823BD]">Leyenda tacómetros:</strong>{' '}
+            <span className="md:hidden">
+              Arco = rango · barra = <strong>{BRAND_DISPLAY_NAME}</strong> · marca = <strong>promedio sector</strong> · número
+              central = La Fe.
+            </span>
+            <span className="hidden md:inline">
+              el arco refleja el rango del indicador; la barra de color es el valor de{' '}
+              <strong>{BRAND_DISPLAY_NAME}</strong>; la marca de referencia en el arco es el <strong>promedio del sector</strong>{' '}
+              (mismo corte mensual que el recuadro «Corte de información» arriba). El porcentaje grande en el centro corresponde
+              a {BRAND_DISPLAY_NAME}.
+            </span>
           </div>
         )}
       </section>
@@ -347,8 +385,13 @@ function SectorDataMeta({ data }: { data: SectorApi }) {
         </p>
       )}
       <p className="mt-2 text-[11px] text-slate-500">
-        El <strong className="text-[#7823BD]">mes de los índices</strong> (tacómetros) aparece en grande en la siguiente
-        sección.
+        <span className="md:hidden">
+          Los tacómetros de la siguiente sección usan el <strong className="text-[#7823BD]">mes de índices</strong> indicado arriba.
+        </span>
+        <span className="hidden md:inline">
+          El <strong className="text-[#7823BD]">mes de los índices</strong> (tacómetros) aparece en grande en la siguiente
+          sección.
+        </span>
       </p>
     </div>
   );
