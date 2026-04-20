@@ -3,7 +3,7 @@ import {
   Building2,
   LineChart,
   LayoutGrid,
-  FileText,
+  BookOpen,
   ChevronRight,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -21,7 +21,7 @@ const items = [
   { id: 'sector', label: 'BI Sectorial', icon: Building2 },
   { id: 'historico', label: 'BI Histórico', icon: LineChart },
   { id: 'funerario', label: 'BI Funerario', icon: LayoutGrid },
-  { id: 'datos', label: 'Datos técnicos', icon: FileText },
+  { id: 'fuentes', label: 'Fuentes', icon: BookOpen },
 ];
 
 export function Sidebar({ activeTab, setActiveTab, mobileOpen = false, onNavigate }: SidebarProps) {

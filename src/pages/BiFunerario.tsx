@@ -6,6 +6,7 @@ import { cn } from '@/lib/utils';
 import { FunerarioEvolutionChart } from '../components/bi/FunerarioEvolutionChart';
 import { FunerarioParticipacionPies } from '../components/bi/FunerarioParticipacionPies';
 import { ExecLead, ExecMobileStrip } from '../components/bi/ExecutiveCopy';
+import { partitionLaFeFirst } from '@/lib/bi/brandRows';
 
 type FunerarioRow = {
   ranking_funerario: number;
@@ -53,6 +54,82 @@ function fmtPctTabla(n: number | null): string {
 
 function vesPorAno(tc: TipoCambioDiciembreRow[], year: number): number | null {
   return tc.find((t) => t.year === year)?.ves_por_usd ?? null;
+}
+
+type FunerarioMatrix = {
+  years: number[];
+  totals: Record<number, number>;
+  peers: string[];
+  cell: Map<
+    string,
+    { label: string; byYear: Record<number, { prima: number; rank: number; pct: number } | undefined> }
+  >;
+};
+
+function FunerarioAnioCeldas({
+  y,
+  c,
+  mostrarUsd,
+  tipo,
+}: {
+  y: number;
+  c: { prima: number; rank: number; pct: number } | undefined;
+  mostrarUsd: boolean;
+  tipo: TipoCambioDiciembreRow[];
+}) {
+  const ves = vesPorAno(tipo, y);
+  const usd = c && mostrarUsd ? milesBsNominalToUsdMillonesNullable(c.prima, ves) : null;
+  return (
+    <div className="rounded-lg bg-slate-50 px-2 py-1.5 text-center">
+      <p className="text-[10px] font-semibold text-slate-500">{y}</p>
+      <p className="mt-0.5 font-mono text-[12px] text-slate-900">
+        {!c ? '—' : mostrarUsd ? (usd != null ? `${fmtUsdTabla(usd)} USD` : '—') : `${fmtMilesTabla(c.prima)} m.Bs.`}
+      </p>
+      <p className="text-[10px] text-slate-600">{c ? fmtPctTabla(c.pct) : '—'}</p>
+      {c ? <p className="text-[9px] text-slate-400">Rank #{c.rank}</p> : null}
+    </div>
+  );
+}
+
+function FunerarioDetalleMovil({
+  matrix,
+  tipo,
+  mostrarUsd,
+}: {
+  matrix: FunerarioMatrix;
+  tipo: TipoCambioDiciembreRow[];
+  mostrarUsd: boolean;
+}) {
+  const { marca: pidMarca, rest } = partitionLaFeFirst(matrix.peers, (p) => p === BRAND_PEER_ID);
+  const entryMarca = pidMarca ? matrix.cell.get(pidMarca) : undefined;
+  return (
+    <div className="space-y-3 md:hidden">
+      {pidMarca && entryMarca ? (
+        <div className="rounded-2xl border-2 border-[#7823BD]/40 bg-gradient-to-br from-[#FFC857]/30 via-white to-violet-50/50 p-4 shadow-lg ring-1 ring-[#7823BD]/15">
+          <p className="text-center text-[10px] font-bold uppercase tracking-[0.14em] text-[#7823BD]">{BRAND_DISPLAY_NAME}</p>
+          <p className="mt-1 text-center text-[11px] text-slate-500">Prima funeraria y participación por año</p>
+          <div className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-3">
+            {matrix.years.map((y) => (
+              <FunerarioAnioCeldas key={y} y={y} c={entryMarca.byYear[y]} mostrarUsd={mostrarUsd} tipo={tipo} />
+            ))}
+          </div>
+        </div>
+      ) : null}
+      {rest.map((peerId) => {
+        const entry = matrix.cell.get(peerId)!;
+        return (
+          <div key={peerId} className="rounded-xl border border-slate-200/90 bg-white px-3 py-2.5 shadow-sm">
+            <p className="text-[12px] font-semibold leading-snug text-slate-800">{entry.label}</p>
+            <div className="mt-2 grid grid-cols-2 gap-1.5 sm:grid-cols-3">
+              {matrix.years.map((y) => (
+                <FunerarioAnioCeldas key={y} y={y} c={entry.byYear[y]} mostrarUsd={mostrarUsd} tipo={tipo} />
+              ))}
+            </div>
+          </div>
+        );
+      })}
+    </div>
+  );
 }
 
 export function BiFunerario() {
@@ -240,13 +317,40 @@ export function BiFunerario() {
           <h3 className="text-base font-bold text-[#7823BD]">
             Detalle por empresa ({mostrarUsd ? 'millones USD y %' : 'miles Bs. y %'} sobre total funerario)
           </h3>
-          <p className="flex items-center gap-2 text-[10px] leading-tight text-slate-500 md:hidden">
-            <span aria-hidden className="shrink-0 rounded border border-slate-200 bg-slate-100 px-1.5 py-0.5 font-mono text-[9px]">
-              ← →
-            </span>
-            Desliza horizontalmente para ver todos los años.
+          <p className="text-[10px] leading-snug text-slate-500 md:hidden">
+            Vista móvil: primero <strong>{BRAND_DISPLAY_NAME}</strong>, después el resto de empresas. En escritorio, tabla
+            completa con desplazamiento horizontal.
           </p>
-          <div className="bi-table-scroll rounded-xl border border-slate-200 shadow-sm">
+          <FunerarioDetalleMovil matrix={matrix} tipo={tipo} mostrarUsd={mostrarUsd} />
+          <div className="rounded-xl border border-slate-200 bg-slate-50 p-3 md:hidden">
+            <p className="text-[10px] font-semibold uppercase tracking-wide text-slate-500">Total ramo funerario (cuadro)</p>
+            <div className="mt-2 flex flex-wrap gap-2">
+              {matrix.years.map((y) => {
+                const totalMiles = matrix.totals[y] ?? 0;
+                const ves = vesPorAno(tipo, y);
+                const totalUsd = mostrarUsd ? milesBsNominalToUsdMillonesNullable(totalMiles, ves) : null;
+                return (
+                  <span
+                    key={y}
+                    className="inline-flex items-center gap-1 rounded-lg bg-white px-2 py-1 text-[10px] text-slate-700 shadow-sm"
+                  >
+                    <strong>{y}:</strong>
+                    {mostrarUsd ? (
+                      totalUsd != null ? (
+                        <span className="font-mono">{fmtUsdTabla(totalUsd)} M USD</span>
+                      ) : (
+                        '—'
+                      )
+                    ) : (
+                      <span className="font-mono">{fmtMilesTabla(totalMiles)} m.Bs.</span>
+                    )}
+                  </span>
+                );
+              })}
+            </div>
+          </div>
+          <div className="hidden md:block">
+            <div className="bi-table-scroll rounded-xl border border-slate-200 shadow-sm">
             <table className="w-max min-w-[720px] max-w-none border-collapse text-left text-xs">
               <caption className="caption-bottom px-2 pb-2 pt-3 text-left text-[11px] text-slate-500">
                 Cada año: prima del ramo funerarios y participación sobre la suma de primas funerarias del cuadro en ese
@@ -354,6 +458,7 @@ export function BiFunerario() {
                 </tr>
               </tfoot>
             </table>
+            </div>
           </div>
         </section>
       )}

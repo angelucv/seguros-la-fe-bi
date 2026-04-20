@@ -8,6 +8,7 @@ import { LaFeDonut } from '../components/charts/LaFeDonut';
 import { LaFePrimasBars } from '../components/charts/LaFePrimasBars';
 import type { ResultadoPayload } from '../components/bi/ResultadoTecnicoSection';
 import { ExecLead, ExecMobileStrip } from '../components/bi/ExecutiveCopy';
+import { isLaFeRow, partitionLaFeFirst } from '@/lib/bi/brandRows';
 
 type SectorApi = {
   error?: string;
@@ -499,6 +500,66 @@ function GaugeCard({ t, corteLine }: { t: SectorApi['tacometers'][0]; corteLine:
   return <PlotlyFigure data={[gauge]} layout={layout} config={{ displayModeBar: false }} />;
 }
 
+function VolMarcaMovil({ row, fech26 }: { row: SectorApi['tabVol'][number]; fech26: string }) {
+  return (
+    <div className="rounded-2xl border-2 border-[#7823BD]/40 bg-gradient-to-br from-[#FFC857]/30 via-white to-violet-50/50 p-4 shadow-lg ring-1 ring-[#7823BD]/15">
+      <p className="text-center text-[10px] font-bold uppercase tracking-[0.14em] text-[#7823BD]">{BRAND_DISPLAY_NAME}</p>
+      <p className="mt-1 text-center text-xs text-slate-600">
+        Ranking <span className="font-mono font-semibold">#{row.ranking ?? '—'}</span> · {fech26.slice(0, 7)}
+      </p>
+      <dl className="mt-3 grid grid-cols-2 gap-2 text-center">
+        <div className="rounded-lg bg-white/80 px-2 py-2">
+          <dt className="text-[9px] font-medium uppercase text-slate-500">Acum. USD</dt>
+          <dd className="mt-1 font-mono text-sm text-slate-900">
+            {Number.isFinite(row.usd) ? row.usd.toLocaleString('es-VE', { maximumFractionDigits: 2 }) : '—'}
+          </dd>
+        </div>
+        <div className="rounded-lg bg-white/80 px-2 py-2">
+          <dt className="text-[9px] font-medium uppercase text-slate-500">% part.</dt>
+          <dd className="mt-1 font-mono text-sm text-slate-900">
+            {row.pct != null ? row.pct.toFixed(2).replace('.', ',') : '—'}
+          </dd>
+        </div>
+        <div className="col-span-2 rounded-lg bg-white/80 px-2 py-2">
+          <dt className="text-[9px] font-medium uppercase text-slate-500">Miles Bs.</dt>
+          <dd className="mt-1 font-mono text-sm text-slate-900">{row.milesBs.toLocaleString('es-VE', { maximumFractionDigits: 0 })}</dd>
+        </div>
+      </dl>
+    </div>
+  );
+}
+
+function VolOtroMovil({ row }: { row: SectorApi['tabVol'][number] }) {
+  return (
+    <div className="rounded-xl border border-slate-200/90 bg-white px-3 py-2.5 shadow-sm">
+      <div className="flex items-start justify-between gap-2">
+        <span className="font-mono text-[11px] font-semibold text-slate-500">#{row.ranking ?? '—'}</span>
+        <p className="min-w-0 flex-1 text-right text-[12px] font-medium leading-snug text-slate-800">{row.empresa}</p>
+      </div>
+      <div className="mt-2 grid grid-cols-3 gap-1.5 text-center">
+        <div className="rounded-md bg-slate-50 px-1 py-1.5">
+          <p className="text-[9px] font-medium uppercase text-slate-500">M USD</p>
+          <p className="mt-0.5 font-mono text-[11px] text-slate-900">
+            {Number.isFinite(row.usd) ? row.usd.toLocaleString('es-VE', { maximumFractionDigits: 2 }) : '—'}
+          </p>
+        </div>
+        <div className="rounded-md bg-slate-50 px-1 py-1.5">
+          <p className="text-[9px] font-medium uppercase text-slate-500">% part.</p>
+          <p className="mt-0.5 font-mono text-[11px] text-slate-900">
+            {row.pct != null ? row.pct.toFixed(2).replace('.', ',') : '—'}
+          </p>
+        </div>
+        <div className="rounded-md bg-slate-50 px-1 py-1.5">
+          <p className="text-[9px] font-medium uppercase text-slate-500">Miles Bs.</p>
+          <p className="mt-0.5 font-mono text-[10px] leading-tight text-slate-900">
+            {row.milesBs.toLocaleString('es-VE', { maximumFractionDigits: 0 })}
+          </p>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function TabVol({ rows, fech26 }: { rows: SectorApi['tabVol']; fech26: string }) {
   if (!rows.length) {
     return (
@@ -508,32 +569,160 @@ function TabVol({ rows, fech26 }: { rows: SectorApi['tabVol']; fech26: string })
       </div>
     );
   }
+  const { marca, rest } = partitionLaFeFirst(rows, (r) => isLaFeRow(undefined, r.empresa));
   return (
     <div className="space-y-3">
       <h3 className="font-semibold text-[#7823BD]">Detalle volumen — {fech26.slice(0, 7)} · USD</h3>
-      <div className="bi-table-scroll rounded-xl border border-slate-200 bg-white">
-        <table className="w-max min-w-[640px] max-w-none text-left text-sm">
-          <thead className="bg-slate-100 text-slate-800">
-            <tr>
-              <th className="px-3 py-2">Ranking</th>
-              <th className="px-3 py-2">Empresa</th>
-              <th className="px-3 py-2">Acum. año (M USD)</th>
-              <th className="px-3 py-2">% part.</th>
-              <th className="px-3 py-2">Acum. año (miles Bs.)</th>
-            </tr>
-          </thead>
-          <tbody>
-            {rows.map((r, i) => (
-              <tr key={i} className="odd:bg-slate-50">
-                <td className="px-3 py-1.5">{r.ranking ?? '—'}</td>
-                <td className="max-w-[11rem] break-words px-3 py-1.5 sm:max-w-none">{r.empresa}</td>
-                <td className="px-3 py-1.5 font-mono">{Number.isFinite(r.usd) ? r.usd.toLocaleString('es-VE', { maximumFractionDigits: 2 }) : '—'}</td>
-                <td className="px-3 py-1.5 font-mono">{r.pct != null ? r.pct.toFixed(2).replace('.', ',') : '—'}</td>
-                <td className="px-3 py-1.5 font-mono">{r.milesBs.toLocaleString('es-VE', { maximumFractionDigits: 0 })}</td>
+      <div className="space-y-3 md:hidden">
+        {marca ? <VolMarcaMovil row={marca} fech26={fech26} /> : null}
+        {rest.map((r, i) => (
+          <VolOtroMovil key={`${r.empresa}-${i}`} row={r} />
+        ))}
+      </div>
+      <div className="hidden md:block">
+        <div className="bi-table-scroll rounded-xl border border-slate-200 bg-white">
+          <table className="w-max min-w-[640px] max-w-none text-left text-sm">
+            <thead className="bg-slate-100 text-slate-800">
+              <tr>
+                <th className="px-3 py-2">Ranking</th>
+                <th className="px-3 py-2">Empresa</th>
+                <th className="px-3 py-2">Acum. año (M USD)</th>
+                <th className="px-3 py-2">% part.</th>
+                <th className="px-3 py-2">Acum. año (miles Bs.)</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {rows.map((r, i) => (
+                <tr key={i} className="odd:bg-slate-50">
+                  <td className="px-3 py-1.5">{r.ranking ?? '—'}</td>
+                  <td className="max-w-[11rem] break-words px-3 py-1.5 sm:max-w-none">{r.empresa}</td>
+                  <td className="px-3 py-1.5 font-mono">
+                    {Number.isFinite(r.usd) ? r.usd.toLocaleString('es-VE', { maximumFractionDigits: 2 }) : '—'}
+                  </td>
+                  <td className="px-3 py-1.5 font-mono">{r.pct != null ? r.pct.toFixed(2).replace('.', ',') : '—'}</td>
+                  <td className="px-3 py-1.5 font-mono">{r.milesBs.toLocaleString('es-VE', { maximumFractionDigits: 0 })}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function IndiceMarcaMovil({
+  row,
+  metricLabels,
+}: {
+  row: SectorApi['tabIndTable'][number];
+  metricLabels: string[];
+}) {
+  return (
+    <div className="rounded-2xl border-2 border-[#7823BD]/40 bg-gradient-to-br from-[#FFC857]/30 via-white to-violet-50/50 p-4 shadow-lg ring-1 ring-[#7823BD]/15">
+      <p className="text-center text-[10px] font-bold uppercase tracking-[0.14em] text-[#7823BD]">{BRAND_DISPLAY_NAME}</p>
+      <p className="mt-1 text-center text-[11px] text-slate-500">Índices (boletín en cifras)</p>
+      <dl className="mt-3 space-y-2">
+        {metricLabels.map((lab) => (
+          <div
+            key={lab}
+            className="flex items-baseline justify-between gap-2 border-b border-slate-200/80 pb-2 last:border-0"
+          >
+            <dt className="min-w-0 text-[11px] font-medium text-slate-600">{lab}</dt>
+            <dd className="shrink-0 font-mono text-sm">
+              {row.metrics[lab] != null ? row.metrics[lab]!.toFixed(2).replace('.', ',') : '—'}
+            </dd>
+          </div>
+        ))}
+      </dl>
+    </div>
+  );
+}
+
+function IndiceOtroMovil({
+  row,
+  metricLabels,
+}: {
+  row: SectorApi['tabIndTable'][number];
+  metricLabels: string[];
+}) {
+  return (
+    <div className="rounded-xl border border-slate-200/90 bg-white px-3 py-2.5 shadow-sm">
+      <p className="text-[12px] font-semibold text-slate-800">{row.empresa}</p>
+      <div className="mt-2 grid grid-cols-2 gap-1.5 sm:grid-cols-3">
+        {metricLabels.map((lab) => (
+          <div key={lab} className="rounded-md bg-slate-50 px-2 py-1.5 text-center">
+            <p className="text-[9px] font-medium leading-tight text-slate-500">{lab}</p>
+            <p className="mt-0.5 font-mono text-[11px]">
+              {row.metrics[lab] != null ? row.metrics[lab]!.toFixed(2).replace('.', ',') : '—'}
+            </p>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function fmtFinCell(n: number | null | undefined): string {
+  return n != null && Number.isFinite(n) ? n.toFixed(2).replace('.', ',') : '—';
+}
+
+function FinMarcaMovil({ r }: { r: SectorApi['indicadores29'][number] }) {
+  return (
+    <div className="rounded-2xl border-2 border-[#7823BD]/40 bg-gradient-to-br from-[#FFC857]/30 via-white to-violet-50/50 p-4 shadow-lg ring-1 ring-[#7823BD]/15">
+      <p className="text-center text-[10px] font-bold uppercase tracking-[0.14em] text-[#7823BD]">{BRAND_DISPLAY_NAME}</p>
+      <p className="mt-1 text-center text-[11px] text-slate-500">Indicadores financieros anuales</p>
+      <dl className="mt-3 space-y-2">
+        <div className="flex justify-between gap-2 border-b border-slate-200/80 pb-2 text-[12px]">
+          <dt className="text-slate-600">Siniestralidad pagada %</dt>
+          <dd className="font-mono">{fmtFinCell(r.sini)}</dd>
+        </div>
+        <div className="flex justify-between gap-2 border-b border-slate-200/80 pb-2 text-[12px]">
+          <dt className="text-slate-600">Comisión y gastos adq. %</dt>
+          <dd className="font-mono">{fmtFinCell(r.comAdq)}</dd>
+        </div>
+        <div className="flex justify-between gap-2 border-b border-slate-200/80 pb-2 text-[12px]">
+          <dt className="text-slate-600">Gastos adm. %</dt>
+          <dd className="font-mono">{fmtFinCell(r.gastAdm)}</dd>
+        </div>
+        <div className="flex justify-between gap-2 border-b border-slate-200/80 pb-2 text-[12px]">
+          <dt className="text-slate-600">Gastos cobertura reservas</dt>
+          <dd className="font-mono">{fmtFinCell(r.gastRes)}</dd>
+        </div>
+        <div className="flex justify-between gap-2 text-[12px]">
+          <dt className="text-slate-600">Índice utilidad / patrimonio</dt>
+          <dd className="font-mono">{fmtFinCell(r.utilPat)}</dd>
+        </div>
+      </dl>
+    </div>
+  );
+}
+
+function FinOtroMovil({ r }: { r: SectorApi['indicadores29'][number] }) {
+  return (
+    <div className="rounded-xl border border-slate-200/90 bg-white px-3 py-2.5 shadow-sm">
+      <p className="text-[12px] font-semibold text-slate-800">{r.empresa}</p>
+      <div className="mt-2 grid grid-cols-2 gap-1.5">
+        <div className="rounded-md bg-slate-50 px-2 py-1.5 text-center">
+          <p className="text-[9px] font-medium text-slate-500">Sini. %</p>
+          <p className="mt-0.5 font-mono text-[11px]">{fmtFinCell(r.sini)}</p>
+        </div>
+        <div className="rounded-md bg-slate-50 px-2 py-1.5 text-center">
+          <p className="text-[9px] font-medium text-slate-500">Com./adq. %</p>
+          <p className="mt-0.5 font-mono text-[11px]">{fmtFinCell(r.comAdq)}</p>
+        </div>
+        <div className="rounded-md bg-slate-50 px-2 py-1.5 text-center">
+          <p className="text-[9px] font-medium text-slate-500">G. adm. %</p>
+          <p className="mt-0.5 font-mono text-[11px]">{fmtFinCell(r.gastAdm)}</p>
+        </div>
+        <div className="rounded-md bg-slate-50 px-2 py-1.5 text-center">
+          <p className="text-[9px] font-medium text-slate-500">G. res.</p>
+          <p className="mt-0.5 font-mono text-[11px]">{fmtFinCell(r.gastRes)}</p>
+        </div>
+        <div className="col-span-2 rounded-md bg-slate-50 px-2 py-1.5 text-center">
+          <p className="text-[9px] font-medium text-slate-500">Util. / patr.</p>
+          <p className="mt-0.5 font-mono text-[11px]">{fmtFinCell(r.utilPat)}</p>
+        </div>
       </div>
     </div>
   );
@@ -557,6 +746,8 @@ function TabInd({
     ? { t: 44, b: 58, l: 36, r: 10 }
     : { t: 52, b: 72, l: 44, r: 20 };
   const metricLabels = tabIndTable[0] ? Object.keys(tabIndTable[0].metrics) : [];
+  const indSplit = partitionLaFeFirst(tabIndTable, (r) => isLaFeRow(r.peer_id, r.empresa));
+  const finSplit = partitionLaFeFirst(indicadores29, (r) => isLaFeRow(undefined, r.empresa));
   return (
     <div className="space-y-8">
       <div>
@@ -564,32 +755,44 @@ function TabInd({
         {tabIndTable.length === 0 ? (
           <p className="mt-2 text-sm text-amber-800">No hay filas de índices para la banda de comparativa en el corte actual.</p>
         ) : (
-          <div className="bi-table-scroll mt-3 rounded-xl border border-slate-200">
-            <table className="w-max min-w-[900px] max-w-none text-left text-xs">
-              <thead className="bg-slate-100">
-                <tr>
-                  <th className="px-2 py-2">Empresa</th>
-                  {metricLabels.map((m) => (
-                    <th key={m} className="px-2 py-2">
-                      {m}
-                    </th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {tabIndTable.map((row) => (
-                  <tr key={row.peer_id} className="odd:bg-white even:bg-slate-50">
-                    <td className="px-2 py-1.5 font-medium">{row.empresa}</td>
-                    {metricLabels.map((lab) => (
-                      <td key={lab} className="px-2 py-1.5 font-mono">
-                        {row.metrics[lab] != null ? row.metrics[lab]!.toFixed(2).replace('.', ',') : '—'}
-                      </td>
+          <>
+            <div className="mt-3 space-y-3 md:hidden">
+              {indSplit.marca ? (
+                <IndiceMarcaMovil row={indSplit.marca} metricLabels={metricLabels} />
+              ) : null}
+              {indSplit.rest.map((row) => (
+                <IndiceOtroMovil key={row.peer_id} row={row} metricLabels={metricLabels} />
+              ))}
+            </div>
+            <div className="hidden md:block">
+              <div className="bi-table-scroll rounded-xl border border-slate-200">
+                <table className="w-max min-w-[900px] max-w-none text-left text-xs">
+                  <thead className="bg-slate-100">
+                    <tr>
+                      <th className="px-2 py-2">Empresa</th>
+                      {metricLabels.map((m) => (
+                        <th key={m} className="px-2 py-2">
+                          {m}
+                        </th>
+                      ))}
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {tabIndTable.map((row) => (
+                      <tr key={row.peer_id} className="odd:bg-white even:bg-slate-50">
+                        <td className="px-2 py-1.5 font-medium">{row.empresa}</td>
+                        {metricLabels.map((lab) => (
+                          <td key={lab} className="px-2 py-1.5 font-mono">
+                            {row.metrics[lab] != null ? row.metrics[lab]!.toFixed(2).replace('.', ',') : '—'}
+                          </td>
+                        ))}
+                      </tr>
                     ))}
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </>
         )}
       </div>
 
@@ -617,31 +820,39 @@ function TabInd({
       <div>
         <h3 className="font-semibold text-[#7823BD]">Indicadores financieros (referencia {dataYear})</h3>
         <p className="text-xs text-slate-500">Cifras anuales; el periodo puede no coincidir con series mensuales.</p>
-        <div className="bi-table-scroll mt-3 rounded-xl border border-slate-200">
-          <table className="w-max min-w-[640px] max-w-none text-left text-sm">
-            <thead className="bg-slate-100">
-              <tr>
-                <th className="px-2 py-2">Empresa</th>
-                <th className="px-2 py-2">Siniestralidad pagada %</th>
-                <th className="px-2 py-2">Comisión y gastos adq. %</th>
-                <th className="px-2 py-2">Gastos adm. %</th>
-                <th className="px-2 py-2">Gastos cobertura reservas</th>
-                <th className="px-2 py-2">Índice utilidad / patrimonio</th>
-              </tr>
-            </thead>
-            <tbody>
-              {indicadores29.map((r) => (
-                <tr key={r.empresa} className="odd:bg-white even:bg-slate-50">
-                  <td className="px-2 py-1.5">{r.empresa}</td>
-                  <td className="px-2 py-1.5 font-mono">{r.sini?.toFixed(2).replace('.', ',') ?? '—'}</td>
-                  <td className="px-2 py-1.5 font-mono">{r.comAdq?.toFixed(2).replace('.', ',') ?? '—'}</td>
-                  <td className="px-2 py-1.5 font-mono">{r.gastAdm?.toFixed(2).replace('.', ',') ?? '—'}</td>
-                  <td className="px-2 py-1.5 font-mono">{r.gastRes?.toFixed(2).replace('.', ',') ?? '—'}</td>
-                  <td className="px-2 py-1.5 font-mono">{r.utilPat?.toFixed(2).replace('.', ',') ?? '—'}</td>
+        <div className="mt-3 space-y-3 md:hidden">
+          {finSplit.marca ? <FinMarcaMovil r={finSplit.marca} /> : null}
+          {finSplit.rest.map((r) => (
+            <FinOtroMovil key={r.empresa} r={r} />
+          ))}
+        </div>
+        <div className="hidden md:block">
+          <div className="bi-table-scroll rounded-xl border border-slate-200">
+            <table className="w-max min-w-[640px] max-w-none text-left text-sm">
+              <thead className="bg-slate-100">
+                <tr>
+                  <th className="px-2 py-2">Empresa</th>
+                  <th className="px-2 py-2">Siniestralidad pagada %</th>
+                  <th className="px-2 py-2">Comisión y gastos adq. %</th>
+                  <th className="px-2 py-2">Gastos adm. %</th>
+                  <th className="px-2 py-2">Gastos cobertura reservas</th>
+                  <th className="px-2 py-2">Índice utilidad / patrimonio</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {indicadores29.map((r) => (
+                  <tr key={r.empresa} className="odd:bg-white even:bg-slate-50">
+                    <td className="px-2 py-1.5">{r.empresa}</td>
+                    <td className="px-2 py-1.5 font-mono">{r.sini?.toFixed(2).replace('.', ',') ?? '—'}</td>
+                    <td className="px-2 py-1.5 font-mono">{r.comAdq?.toFixed(2).replace('.', ',') ?? '—'}</td>
+                    <td className="px-2 py-1.5 font-mono">{r.gastAdm?.toFixed(2).replace('.', ',') ?? '—'}</td>
+                    <td className="px-2 py-1.5 font-mono">{r.gastRes?.toFixed(2).replace('.', ',') ?? '—'}</td>
+                    <td className="px-2 py-1.5 font-mono">{r.utilPat?.toFixed(2).replace('.', ',') ?? '—'}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </div>
         <p className="mt-2 text-xs text-slate-500">
           Primas (pestaña «Volumen»): acumulado {anioCurso} en USD (metodología SUDEASEG + tipo de cambio mensual).

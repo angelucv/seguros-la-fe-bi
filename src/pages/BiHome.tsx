@@ -1,6 +1,6 @@
 import { useEffect, useState, type ReactNode } from 'react';
 import { fetchApiJson } from '@/lib/apiFetch';
-import { ArrowRight, BookOpen, Database, LayoutGrid, LineChart, PieChart } from 'lucide-react';
+import { ArrowRight, BookOpen, LayoutGrid, LineChart, PieChart } from 'lucide-react';
 import { APP_NAME } from './biConstants';
 import { HomeGlossaryContent } from '../components/bi/HomeGlossary';
 import { ResultadoTecnicoSection, type ResultadoPayload } from '../components/bi/ResultadoTecnicoSection';
@@ -21,7 +21,7 @@ type HomeApi = {
   anuarioReferenceYear?: number;
 };
 
-export type BiHomeNavigateTab = 'home' | 'sector' | 'historico' | 'funerario' | 'datos';
+export type BiHomeNavigateTab = 'home' | 'sector' | 'historico' | 'funerario' | 'fuentes';
 
 type BiHomeProps = {
   onNavigateTab?: (tab: BiHomeNavigateTab) => void;
@@ -100,21 +100,13 @@ export function BiHome({ onNavigateTab }: BiHomeProps) {
             onClick={() => go('funerario')}
           />
           <AccessCard
-            icon={<Database className="h-5 w-5" aria-hidden />}
-            title="Datos técnicos"
-            description="Listado de tablas cargadas en esta instalación (consulta o auditoría interna)."
-            descriptionShort="Archivos fuente del servidor (auditoría)."
-            onClick={() => go('datos')}
+            icon={<BookOpen className="h-5 w-5" aria-hidden />}
+            title="Fuentes"
+            description="Documentación de las fuentes públicas utilizadas (SUDEASEG, BCV) y uso responsable de las cifras."
+            descriptionShort="Qué publicaciones oficiales alimentan cada vista del tablero."
+            onClick={() => go('fuentes')}
           />
         </div>
-      </div>
-
-      <div className="hidden rounded-2xl border border-[#7823BD]/10 bg-white p-5 shadow-sm sm:block sm:p-8">
-        <h2 className="text-lg font-bold text-[#7823BD]">Fuentes</h2>
-        <p className="mt-2 text-sm leading-relaxed text-slate-600">
-          Información pública del sector asegurador (SUDEASEG) y tipo de cambio oficial (BCV) para conversiones a USD cuando
-          se muestran en esa moneda.
-        </p>
       </div>
 
       <details className="group rounded-2xl border border-[#7823BD]/10 bg-white shadow-sm open:ring-1 open:ring-[#7823BD]/10">

@@ -1,5 +1,4 @@
 import { useEffect, useState } from 'react';
-import { fetchApiJson } from '@/lib/apiFetch';
 import { Sidebar } from './components/layout/Sidebar';
 import { Menu, X } from 'lucide-react';
 import { BiHome } from './pages/BiHome';
@@ -8,8 +7,9 @@ import { BiSector } from './pages/BiSector';
 import { BiHistorico } from './pages/BiHistorico';
 import { BiFunerario } from './pages/BiFunerario';
 import { SegurosLaFeMark } from './components/brand/SegurosLaFeMark';
+import { FuentesInformacion } from './components/bi/FuentesInformacion';
 
-type Tab = 'home' | 'sector' | 'historico' | 'funerario' | 'datos';
+type Tab = 'home' | 'sector' | 'historico' | 'funerario' | 'fuentes';
 
 export default function App() {
   const [activeTab, setActiveTab] = useState<Tab>('home');
@@ -57,7 +57,7 @@ export default function App() {
               {activeTab === 'sector' && 'BI Sectorial'}
               {activeTab === 'historico' && 'BI Histórico'}
               {activeTab === 'funerario' && 'BI Funerario'}
-              {activeTab === 'datos' && 'Datos técnicos'}
+              {activeTab === 'fuentes' && 'Fuentes'}
             </h1>
           </div>
         </header>
@@ -72,42 +72,10 @@ export default function App() {
             )}
             {activeTab === 'historico' && <BiHistorico />}
             {activeTab === 'funerario' && <BiFunerario />}
-            {activeTab === 'datos' && <DataFilesPanel />}
+            {activeTab === 'fuentes' && <FuentesInformacion />}
           </div>
         </div>
       </main>
-    </div>
-  );
-}
-
-function DataFilesPanel() {
-  const [info, setInfo] = useState<{ files?: string[]; dataDir?: string } | null>(null);
-
-  useEffect(() => {
-    fetchApiJson<{ files?: string[]; dataDir?: string }>('/api/data-files')
-      .then(setInfo)
-      .catch(() => setInfo({}));
-  }, []);
-
-  return (
-    <div className="rounded-2xl border border-[#7823BD]/10 bg-white p-4 shadow-sm sm:p-5">
-      <h2 className="text-base font-bold text-[#7823BD] sm:text-lg">Conjuntos de datos cargados</h2>
-      <p className="mt-1 text-xs text-slate-500 sm:text-sm">
-        <span className="hidden sm:inline">
-          Listado de tablas fuente disponibles en esta instalación (uso técnico o auditoría).
-        </span>
-        <span className="sm:hidden">Archivos fuente del servidor (auditoría / TI).</span>
-      </p>
-      {info?.dataDir ? (
-        <p className="mt-2 hidden text-xs text-slate-400 sm:block">Origen interno configurado para el servidor.</p>
-      ) : null}
-      <ul className="mt-4 space-y-1 font-mono text-xs text-slate-700">
-        {info?.files?.map((f) => (
-          <li key={f} className="rounded bg-slate-50 px-2 py-1">
-            {f}
-          </li>
-        ))}
-      </ul>
     </div>
   );
 }

@@ -19,6 +19,60 @@ import {
   type HistApi,
 } from '@/src/lib/biHistoricoHelpers';
 import { ExecLead, ExecMobileStrip } from '../components/bi/ExecutiveCopy';
+import { isLaFeRow, partitionLaFeFirst } from '@/lib/bi/brandRows';
+
+function fmtYoyCell(v: number | undefined): string {
+  if (v == null || !Number.isFinite(v)) return '—';
+  return `${Number(v).toFixed(1).replace('.', ',')} %`;
+}
+
+function HistoricoYoyMovil({
+  rows,
+  cols,
+}: {
+  rows: HistApi['varPivot'];
+  cols: string[];
+}) {
+  const { marca, rest } = partitionLaFeFirst(rows, (r) => isLaFeRow(r.peer_id, r.label));
+  return (
+    <div className="space-y-3 md:hidden">
+      {marca ? (
+        <div className="rounded-2xl border-2 border-[#7823BD]/40 bg-gradient-to-br from-[#FFC857]/30 via-white to-violet-50/50 p-4 shadow-lg ring-1 ring-[#7823BD]/15">
+          <p className="text-center text-[10px] font-bold uppercase tracking-[0.14em] text-[#7823BD]">{BRAND_DISPLAY_NAME}</p>
+          <p className="mt-1 text-center text-[11px] text-slate-500">Variación YoY (dic. vs dic.) · %</p>
+          <dl className="mt-3 space-y-2">
+            {cols.map((p) => (
+              <div
+                key={p}
+                className="flex items-baseline justify-between gap-2 border-b border-slate-200/80 pb-2 last:border-0"
+              >
+                <dt className="min-w-0 text-[11px] font-medium leading-snug text-slate-600">{p}</dt>
+                <dd className="shrink-0 font-mono text-sm font-semibold tabular-nums text-slate-900">
+                  {fmtYoyCell(marca.values[p])}
+                </dd>
+              </div>
+            ))}
+          </dl>
+        </div>
+      ) : null}
+      <div className="space-y-2">
+        {rest.map((row) => (
+          <div key={row.peer_id} className="rounded-xl border border-slate-200/90 bg-white px-3 py-2.5 shadow-sm">
+            <p className="text-[12px] font-semibold leading-snug text-slate-800">{row.label}</p>
+            <div className="mt-2 grid grid-cols-2 gap-1.5 sm:grid-cols-3">
+              {cols.map((p) => (
+                <div key={p} className="rounded-md bg-slate-50 px-2 py-1.5 text-center">
+                  <p className="text-[9px] font-medium uppercase leading-tight text-slate-500">{p}</p>
+                  <p className="mt-0.5 font-mono text-[11px] tabular-nums text-slate-900">{fmtYoyCell(row.values[p])}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
 
 function fmtFechaGeneracion(iso: string): string {
   if (!iso) return '—';
@@ -569,48 +623,56 @@ export function BiHistorico() {
         {data.varPivot.length === 0 ? (
           <p className="text-sm text-slate-500">No hay pares completos de cierres de diciembre para calcular variación YoY.</p>
         ) : (
-          <div className="bi-table-scroll rounded-xl border border-slate-200">
-            <table className="w-max min-w-[480px] max-w-none text-left text-sm">
-              <caption className="caption-bottom px-2 pb-2 pt-3 text-left text-xs text-slate-500">
-                Variación porcentual entre cierres de diciembre consecutivos · primas en miles de Bs. nominales · solo
-                períodos con cierre en diciembre de <strong>2022</strong> o posterior. Fuente: SUDEASEG.
-              </caption>
-              <thead className="bg-slate-100">
-                <tr>
-                  <th className="px-2 py-2">Empresa</th>
-                  {yoyPeriodCols.map((p) => (
-                    <th key={p} className="px-2 py-2">
-                      {p}
-                    </th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {data.varPivot.map((row) => {
-                  const intl = row.peer_id === BRAND_PEER_ID;
-                  return (
-                    <tr
-                      key={row.peer_id}
-                      className={
-                        intl
-                          ? 'bg-[#FFC857]/15 ring-1 ring-inset ring-[#7823BD]/20'
-                          : 'odd:bg-white even:bg-slate-50'
-                      }
-                    >
-                      <td className="px-2 py-1.5 font-medium">{row.label}</td>
+          <>
+            <p className="text-[11px] leading-snug text-slate-500 md:hidden">
+              % entre cierres de diciembre · primas miles Bs. · períodos desde dic. <strong>2022</strong> · SUDEASEG.
+            </p>
+            <HistoricoYoyMovil rows={data.varPivot} cols={yoyPeriodCols} />
+            <div className="hidden md:block">
+              <div className="bi-table-scroll rounded-xl border border-slate-200">
+                <table className="w-max min-w-[480px] max-w-none text-left text-sm">
+                  <caption className="caption-bottom px-2 pb-2 pt-3 text-left text-xs text-slate-500">
+                    Variación porcentual entre cierres de diciembre consecutivos · primas en miles de Bs. nominales · solo
+                    períodos con cierre en diciembre de <strong>2022</strong> o posterior. Fuente: SUDEASEG.
+                  </caption>
+                  <thead className="bg-slate-100">
+                    <tr>
+                      <th className="px-2 py-2">Empresa</th>
                       {yoyPeriodCols.map((p) => (
-                        <td key={p} className="px-2 py-1.5 font-mono tabular-nums">
-                          {row.values[p] != null && Number.isFinite(row.values[p])
-                            ? `${Number(row.values[p]).toFixed(1).replace('.', ',')} %`
-                            : '—'}
-                        </td>
+                        <th key={p} className="px-2 py-2">
+                          {p}
+                        </th>
                       ))}
                     </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          </div>
+                  </thead>
+                  <tbody>
+                    {data.varPivot.map((row) => {
+                      const intl = row.peer_id === BRAND_PEER_ID;
+                      return (
+                        <tr
+                          key={row.peer_id}
+                          className={
+                            intl
+                              ? 'bg-[#FFC857]/15 ring-1 ring-inset ring-[#7823BD]/20'
+                              : 'odd:bg-white even:bg-slate-50'
+                          }
+                        >
+                          <td className="px-2 py-1.5 font-medium">{row.label}</td>
+                          {yoyPeriodCols.map((p) => (
+                            <td key={p} className="px-2 py-1.5 font-mono tabular-nums">
+                              {row.values[p] != null && Number.isFinite(row.values[p])
+                                ? `${Number(row.values[p]).toFixed(1).replace('.', ',')} %`
+                                : '—'}
+                            </td>
+                          ))}
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </>
         )}
       </section>
 
