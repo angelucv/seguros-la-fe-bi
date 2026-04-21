@@ -91,7 +91,8 @@ export function LaFePrimasBars({
         mesNombre: etiquetaMesLargoBarras(lab, mesesLabels),
       };
       for (const s of series) {
-        row[s.peer_id] = s.y[i] ?? 0;
+        const v = s.y[i];
+        row[s.peer_id] = v != null && Number.isFinite(v) ? v : 0;
       }
       return row;
     });
@@ -138,7 +139,15 @@ export function LaFePrimasBars({
       />
       {subtitle && <p className="mt-1 text-center text-xs font-medium text-slate-600">{subtitle}</p>}
       <div className="mt-4 rounded-xl bg-white/95 p-2 pt-4 shadow-inner">
-        <div className="h-[min(420px,70vh)] w-full min-h-[220px] sm:min-h-[320px]">
+        {/*
+          Recharts ResponsiveContainer usa height: 100% sobre el padre.
+          Un padre solo con min-height (sin height definida) hace que el % se resuelva en 0 → gráfico en blanco.
+          min() en style inline evita depender de que Tailwind genere la utilidad arbitraria.
+        */}
+        <div
+          className="w-full min-h-[220px] sm:min-h-[320px]"
+          style={{ height: 'min(420px, 70vh)' }}
+        >
           <ResponsiveContainer width="100%" height="100%">
             <ComposedChart
               data={data}
