@@ -139,16 +139,8 @@ export function LaFePrimasBars({
       />
       {subtitle && <p className="mt-1 text-center text-xs font-medium text-slate-600">{subtitle}</p>}
       <div className="mt-4 rounded-xl bg-white/95 p-2 pt-4 shadow-inner">
-        {/*
-          Recharts ResponsiveContainer usa height: 100% sobre el padre.
-          Un padre solo con min-height (sin height definida) hace que el % se resuelva en 0 → gráfico en blanco.
-          min() en style inline evita depender de que Tailwind genere la utilidad arbitraria.
-        */}
-        <div
-          className="w-full min-h-[220px] sm:min-h-[320px]"
-          style={{ height: 'min(420px, 70vh)' }}
-        >
-          <ResponsiveContainer width="100%" height="100%">
+        <div className="w-full min-h-[220px] sm:min-h-[320px]">
+          <ResponsiveContainer width="100%" height={compact ? 300 : 380}>
             <ComposedChart
               data={data}
               margin={{
