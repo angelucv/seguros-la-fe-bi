@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import type { Data, Layout } from 'plotly.js';
 import { etiquetaMesLargoBarras } from '../../../lib/monthLabels';
 import { useCompactViewport } from '../../lib/useCompactViewport';
-import { BRAND_PEER_ID, COLOR_PEER_MARCA } from '../../../lib/bi/config';
+import { BRAND_PEER_ID, COLOR_BRAND_PRIMARY, COLOR_PEER_MARCA } from '../../../lib/bi/config';
 import { PlotlyFigure } from './PlotlyFigure';
 
 type Serie = { peer_id: string; name: string; color: string; y: number[] };
@@ -65,21 +65,45 @@ export function LaFePrimasBars({
     [series]
   );
 
-  const plotData: Data[] = useMemo(
-    () =>
-      seriesForChart.map((s) => ({
-        type: 'bar',
-        name: s.name,
-        x,
-        y: x.map((_, i) => {
-          const v = s.y[i];
-          return v != null && Number.isFinite(v) ? v : 0;
-        }),
-        marker: { color: s.color, line: { color: '#ffffff', width: 1 } },
-        hovertemplate: '%{x}<br>%{y:.4f} M USD<extra></extra>',
-      })),
-    [seriesForChart, x]
-  );
+  const plotData: Data[] = useMemo(() => {
+    const bars: Data[] = seriesForChart.map((s) => ({
+      type: 'bar',
+      name: s.name,
+      x,
+      y: x.map((_, i) => {
+        const v = s.y[i];
+        return v != null && Number.isFinite(v) ? v : 0;
+      }),
+      marker: { color: s.color, line: { color: '#ffffff', width: 1 } },
+      hovertemplate: '%{x}<br>%{y:.4f} M USD<extra></extra>',
+    }));
+
+    const marca = seriesForChart.find((s) => s.peer_id === BRAND_PEER_ID);
+    if (!marca || x.length < 2) return bars;
+
+    const yTendencia = x.map((_, i) => {
+      const v = marca.y[i];
+      return v != null && Number.isFinite(v) ? v : 0;
+    });
+
+    const tendenciaLaFe: Data = {
+      type: 'scatter',
+      mode: 'lines+markers',
+      name: 'La Fe · tendencia',
+      x,
+      y: yTendencia,
+      line: { color: COLOR_BRAND_PRIMARY, width: 3, shape: 'linear' },
+      marker: {
+        color: '#ffffff',
+        size: compact ? 8 : 10,
+        line: { color: COLOR_BRAND_PRIMARY, width: 2.4 },
+      },
+      hovertemplate: '%{x}<br><b>La Fe</b> (tendencia): %{y:.4f} M USD<extra></extra>',
+      showlegend: false,
+    };
+
+    return [...bars, tendenciaLaFe];
+  }, [seriesForChart, x, compact]);
 
   const layout: Partial<Layout> = useMemo(
     () => ({
@@ -126,6 +150,10 @@ export function LaFePrimasBars({
           className="min-h-[280px] w-full sm:min-h-[320px]"
         />
       </div>
+      <p className="mt-2 text-center text-[11px] text-slate-500 sm:text-xs">
+        Línea morada: evolución mes a mes de <strong className="text-[#7823BD]">Seguros La Fe</strong> sobre las mismas
+        primas en millones USD.
+      </p>
       <ul
         className="mt-2 flex list-none flex-col gap-2 border-t border-slate-100 px-1 pb-2 pt-3 text-left sm:flex-row sm:flex-wrap sm:justify-center sm:gap-x-6 sm:text-center"
         style={{ margin: 0, paddingLeft: 0, paddingRight: 0 }}
